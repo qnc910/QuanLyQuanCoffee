@@ -15,6 +15,7 @@ public class DangNhap extends javax.swing.JFrame {
      */
     public DangNhap() {
         initComponents();
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -50,6 +51,11 @@ public class DangNhap extends javax.swing.JFrame {
         btn_dangNhap.setBackground(new java.awt.Color(51, 255, 0));
         btn_dangNhap.setFont(new java.awt.Font("Segoe UI", 2, 12)); // NOI18N
         btn_dangNhap.setText("Đăng nhập");
+        btn_dangNhap.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_dangNhapActionPerformed(evt);
+            }
+        });
 
         btn_dangKy.setBackground(new java.awt.Color(255, 255, 0));
         btn_dangKy.setFont(new java.awt.Font("Segoe UI", 2, 12)); // NOI18N
@@ -111,6 +117,12 @@ public class DangNhap extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btn_dangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_dangNhapActionPerformed
+        // TODO add your handling code here:
+        new TrangChu().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btn_dangNhapActionPerformed
 
     /**
      * @param args the command line arguments

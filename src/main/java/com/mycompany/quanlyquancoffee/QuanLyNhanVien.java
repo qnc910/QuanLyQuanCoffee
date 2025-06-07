@@ -15,6 +15,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
      */
     public QuanLyNhanVien() {
         initComponents();
+        setLocationRelativeTo(null);
     }
 
     /**
