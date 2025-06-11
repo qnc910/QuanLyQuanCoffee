@@ -8,10 +8,24 @@ package com.mycompany.quanlyquancoffee.Models;
  *
  * @author HELLO
  */
+
+import jakarta.persistence.*;  // hoặc javax.persistence.* nếu bạn dùng Spring Boot < 3
+
+@Entity
+@Table(name = "tai_khoan")  // Trùng với tên bảng trong CSDL
 public class TaiKhoan {
+
+    @Id
+    @Column(name = "ten_dang_nhap", length = 50)
     private String tenDangNhap;
-    private String matKhau; // nên được mã hóa khi lưu
+
+    @Column(name = "mat_khau", nullable = false, length = 50)
+    private String matKhau;
+
+    @Column(name = "ma_nv", length = 10)
     private String maNV;
+
+    @Column(name = "quyen", length = 20)
     private String quyen;
 
     // Constructors
@@ -25,15 +39,36 @@ public class TaiKhoan {
     }
 
     // Getters and Setters
-    public String getTenDangNhap() { return tenDangNhap; }
-    public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }
+    public String getTenDangNhap() {
+        return tenDangNhap;
+    }
 
-    public String getMatKhau() { return matKhau; }
-    public void setMatKhau(String matKhau) { this.matKhau = matKhau; }
+    public void setTenDangNhap(String tenDangNhap) {
+        this.tenDangNhap = tenDangNhap;
+    }
 
-    public String getMaNV() { return maNV; }
-    public void setMaNV(String maNV) { this.maNV = maNV; }
+    public String getMatKhau() {
+        return matKhau;
+    }
 
-    public String getQuyen() { return quyen; }
-    public void setQuyen(String quyen) { this.quyen = quyen; }
+    public void setMatKhau(String matKhau) {
+        this.matKhau = matKhau;
+    }
+
+    public String getMaNV() {
+        return maNV;
+    }
+
+    public void setMaNV(String maNV) {
+        this.maNV = maNV;
+    }
+
+    public String getQuyen() {
+        return quyen;
+    }
+
+    public void setQuyen(String quyen) {
+        this.quyen = quyen;
+    }
 }
+

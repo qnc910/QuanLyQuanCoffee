@@ -2,7 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.quanlyquancoffee;
+package com.mycompany.quanlyquancoffee.Views;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Scanner;
+import javax.swing.JOptionPane;
+
+
 
 /**
  *
@@ -36,7 +45,7 @@ public class DangNhap extends javax.swing.JFrame {
         btn_dangNhap = new javax.swing.JButton();
         btn_dangKy = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        cboVaitro = new javax.swing.JComboBox<>();
 
         jPasswordField1.setText("jPasswordField1");
 
@@ -65,7 +74,7 @@ public class DangNhap extends javax.swing.JFrame {
 
         jLabel3.setText("Vai trò");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cboVaitro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "admin", "nhân viên" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -83,7 +92,7 @@ public class DangNhap extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(txt_userName)
                             .addComponent(txt_passWord, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(cboVaitro, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(87, 87, 87)
                         .addComponent(btn_dangNhap, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -97,7 +106,7 @@ public class DangNhap extends javax.swing.JFrame {
                 .addContainerGap(62, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cboVaitro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -131,9 +140,48 @@ public class DangNhap extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_dangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_dangNhapActionPerformed
-        // TODO add your handling code here:
-        new TrangChu().setVisible(true);
-        this.dispose();
+
+        String tenDangNhap = txt_userName.getText();
+        String matKhau = new String(txt_passWord.getPassword());
+        String quyen = cboVaitro.getSelectedItem().toString();
+
+        try {
+            URL url = new URL("http://localhost:1234/api/taikhoan/dangnhap");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            String jsonInputString = String.format(
+                "{\"tenDangNhap\":\"%s\",\"matKhau\":\"%s\",\"quyen\":\"%s\"}",
+                tenDangNhap, matKhau, quyen
+            );
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                Scanner s = new Scanner(conn.getInputStream()).useDelimiter("\\A");
+                String response = s.hasNext() ? s.next() : "";
+                JOptionPane.showMessageDialog(this, response);
+
+                if (response.contains("thành công")) {
+                    new TrangChu().setVisible(true);
+                    this.dispose();
+                }
+            } else {
+                Scanner s = new Scanner(conn.getErrorStream()).useDelimiter("\\A");
+                String errorMsg = s.hasNext() ? s.next() : "Lỗi không xác định";
+                JOptionPane.showMessageDialog(this, "Lỗi đăng nhập: " + errorMsg);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi khi đăng nhập.");
+        }
     }//GEN-LAST:event_btn_dangNhapActionPerformed
 
     /**
@@ -174,7 +222,7 @@ public class DangNhap extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_dangKy;
     private javax.swing.JButton btn_dangNhap;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> cboVaitro;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
