@@ -16,7 +16,7 @@ public class AuthController {
     private TaiKhoanRepository taiKhoanRepository;
 
     @PostMapping("/api/taikhoan/dangnhap")
-    public ResponseEntity<String> dangNhap(@RequestBody TaiKhoan tk) {
+    public ResponseEntity<?> dangNhap(@RequestBody TaiKhoan tk) {
         System.out.println("Yêu cầu đăng nhập: " + tk.getTenDangNhap() + ", " + tk.getMatKhau() + ", " + tk.getQuyen());
 
         Optional<TaiKhoan> taiKhoan = taiKhoanRepository.findByTenDangNhapAndMatKhauAndQuyen(
@@ -24,9 +24,24 @@ public class AuthController {
         );
 
         if (taiKhoan.isPresent()) {
-            return ResponseEntity.ok("Đăng nhập thành công");
+            TaiKhoan found = taiKhoan.get();
+
+            String json = String.format(
+                "{" +
+                    "\"message\":\"Đăng nhập thành công\"," +
+                    "\"tenDangNhap\":\"%s\"," +
+                    "\"quyen\":\"%s\"," +
+                    "\"maNV\":\"%s\"" +
+                "}",
+                found.getTenDangNhap(),
+                found.getQuyen(),
+                found.getMaNV() != null ? found.getMaNV() : "" // tránh null
+            );
+
+            return ResponseEntity.ok(json);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                 .body("Sai thông tin đăng nhập");
         }
     }
 }
