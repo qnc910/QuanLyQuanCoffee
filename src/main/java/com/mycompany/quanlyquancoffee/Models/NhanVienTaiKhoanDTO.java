@@ -1,47 +1,36 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.mycompany.quanlyquancoffee.Models;
 
-import jakarta.persistence.*;
+/**
+ *
+ * @author HELLO
+*/
+
 import java.util.Date;
 
-@Entity
-@Table(name = "nhan_vien")  // Tên bảng trùng SQL
-public class NhanVien {
 
-    @Id
-    @Column(name = "ma_nv", length = 10)
+public class NhanVienTaiKhoanDTO {
     private String maNV;
-
-    @Column(name = "ho_ten", length = 100, nullable = false)
     private String hoTen;
-
-    @Column(name = "cmnd", length = 20)
     private String cmnd;
-
-    @Column(name = "sdt", length = 15)
     private String sdt;
-
-    @Column(name = "dia_chi", length = 255)
     private String diaChi;
-
-    @Column(name = "ngay_sinh")
-    @Temporal(TemporalType.DATE)
     private Date ngaySinh;
-
-    @Column(name = "ngay_vao_lam")
-    @Temporal(TemporalType.DATE)
     private Date ngayVaoLam;
-
-    @Column(name = "vi_tri", length = 50)
     private String viTri;
 
-    // Quan hệ 1-1 với TaiKhoan, mappedBy phải đúng với tên field ở TaiKhoan
-    @OneToOne(mappedBy = "nhanVien", cascade = CascadeType.ALL)
-    private TaiKhoan taiKhoan;
+    private String tenDangNhap;
+    private String quyen;
 
     // Constructors
-    public NhanVien() {}
+    public NhanVienTaiKhoanDTO() {}
 
-    public NhanVien(String maNV, String hoTen, String cmnd, String sdt, String diaChi, Date ngaySinh, Date ngayVaoLam, String viTri) {
+    public NhanVienTaiKhoanDTO(String maNV, String hoTen, String cmnd, String sdt,
+                               String diaChi, Date ngaySinh, Date ngayVaoLam,
+                               String viTri, String tenDangNhap, String quyen) {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.cmnd = cmnd;
@@ -50,6 +39,8 @@ public class NhanVien {
         this.ngaySinh = ngaySinh;
         this.ngayVaoLam = ngayVaoLam;
         this.viTri = viTri;
+        this.tenDangNhap = tenDangNhap;
+        this.quyen = quyen;
     }
 
     // Getters and Setters
@@ -117,11 +108,20 @@ public class NhanVien {
         this.viTri = viTri;
     }
 
-    public TaiKhoan getTaiKhoan() {
-        return taiKhoan;
+    public String getTenDangNhap() {
+        return tenDangNhap;
     }
 
-    public void setTaiKhoan(TaiKhoan taiKhoan) {
-        this.taiKhoan = taiKhoan;
+    public void setTenDangNhap(String tenDangNhap) {
+        this.tenDangNhap = tenDangNhap;
+    }
+
+    public String getQuyen() {
+        return quyen;
+    }
+
+    public void setQuyen(String quyen) {
+        this.quyen = quyen;
     }
 }
+

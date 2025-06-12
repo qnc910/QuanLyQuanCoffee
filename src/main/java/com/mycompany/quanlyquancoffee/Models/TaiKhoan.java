@@ -4,15 +4,11 @@
  */
 package com.mycompany.quanlyquancoffee.Models;
 
-/**
- *
- * @author HELLO
- */
-
-import jakarta.persistence.*;  // hoặc javax.persistence.* nếu bạn dùng Spring Boot < 3
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "tai_khoan")  // Trùng với tên bảng trong CSDL
+@Table(name = "tai_khoan")
 public class TaiKhoan {
 
     @Id
@@ -22,23 +18,24 @@ public class TaiKhoan {
     @Column(name = "mat_khau", nullable = false, length = 50)
     private String matKhau;
 
-    @Column(name = "ma_nv", length = 10)
-    private String maNV;
-
     @Column(name = "quyen", length = 20)
     private String quyen;
 
-    // Constructors
+    // Liên kết với NhanVien qua ma_nv (mỗi tài khoản chỉ gắn với 1 nhân viên)
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "ma_nv", referencedColumnName = "ma_nv", nullable = true)
+    private NhanVien nhanVien;
+
     public TaiKhoan() {}
 
-    public TaiKhoan(String tenDangNhap, String matKhau, String maNV, String quyen) {
+    public TaiKhoan(String tenDangNhap, String matKhau, String quyen, NhanVien nhanVien) {
         this.tenDangNhap = tenDangNhap;
         this.matKhau = matKhau;
-        this.maNV = maNV;
         this.quyen = quyen;
+        this.nhanVien = nhanVien;
     }
 
-    // Getters and Setters
     public String getTenDangNhap() {
         return tenDangNhap;
     }
@@ -55,14 +52,6 @@ public class TaiKhoan {
         this.matKhau = matKhau;
     }
 
-    public String getMaNV() {
-        return maNV;
-    }
-
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
-    }
-
     public String getQuyen() {
         return quyen;
     }
@@ -70,5 +59,16 @@ public class TaiKhoan {
     public void setQuyen(String quyen) {
         this.quyen = quyen;
     }
-}
 
+    public NhanVien getNhanVien() {
+        return nhanVien;
+    }
+
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
+    }
+
+    public String getMaNV() {
+        return nhanVien != null ? nhanVien.getMaNV() : null;
+    }
+}

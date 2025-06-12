@@ -189,7 +189,7 @@ public class DangNhap extends javax.swing.JFrame {
         String tenDangNhap = txt_userName.getText();
          String matKhau = new String(txt_passWord.getPassword());
          String q = cboVaitro.getSelectedItem().toString();
-         String quyen ="";
+         String quyen ="admin";
          if(q.equals("nhân viên")){
               quyen = "nhanvien";
          }
