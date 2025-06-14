@@ -4,6 +4,7 @@
  */
 package com.mycompany.quanlyquancoffee.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class LoaiMon {
     @Column(name = "ten_loai", length = 100)
     private String tenLoai;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "maLoai", cascade = CascadeType.ALL) 
     private List<SanPham> danhsachSP;
     

@@ -15,7 +15,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // ❌ Tắt CSRF (do dùng REST API)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/taikhoan/dangnhap", "/api/sanpham/getall").permitAll() // ✅ Cho phép không cần auth
+                .requestMatchers("/api/taikhoan/dangnhap", "/api/sanpham/**","/api/loaimon/**").permitAll() // ✅ Cho phép không cần auth
                 .anyRequest().authenticated() // 🔐 Các request khác cần xác thực
             );
         

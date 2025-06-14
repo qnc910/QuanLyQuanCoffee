@@ -1,10 +1,18 @@
 package com.mycompany.quanlyquancoffee.Views;
 
+import DTO.SanPhamDTO;
 import com.mycompany.quanlyquancoffee.Helper.ApiCaller;
 import com.mycompany.quanlyquancoffee.Models.SanPham;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -25,22 +33,41 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);// center form in the screen
         LoadSanPham();
+        LoadDanhMuc();
     }
 
+    Map<String, String> danhMucMap = new HashMap<>();
+    private void LoadDanhMuc(){
+        try {
+            Connection con = Connect.ConnectDB.KetnoiDB();
+            String sql = "Select * From loai_mon";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            cbo_DanhMuc.addItem("---Chọn loại món---");
+            danhMucMap.put("---Chọn loại món---","");
+            while(rs.next()){
+                cbo_DanhMuc.addItem(rs.getString("ten_loai"));
+                danhMucMap.put(rs.getString("ten_loai"), rs.getString("ma_loai"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private void LoadSanPham(){
         try {
             tbl_Mon.removeAll();
             String[] head = {"Mã món", "Tên món", "Giá", "Loại món", "Hình ảnh"};
             DefaultTableModel tb = new DefaultTableModel(head, 0);
             
-            List<SanPham> ds = ApiCaller.layDanhSachSanPham();
+            List<SanPhamDTO> ds = ApiCaller.layDanhSachSanPham();
             
-            for(SanPham sp : ds){
+            for(SanPhamDTO sp : ds){
                 tb.addRow(new Object[]{
                     sp.getMaMon(),
                     sp.getTenMon(),
                     sp.getGia(),
-                    sp.getMaLoai(),
+                    sp.getTenLoai(),
                     sp.getHinhAnh()
                 });
             }
@@ -304,11 +331,18 @@ public class SanPhamJFrame extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         tbl_Mon.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -325,8 +359,6 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         jLabel24.setText("Tên Món:");
 
         jLabel28.setText("Đơn giá:");
-
-        cbo_DanhMuc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         btn_Them.setBackground(new java.awt.Color(34, 167, 240));
         btn_Them.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -563,6 +595,33 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
     private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
         // TODO add your handling code here:
+        String maMon = txt_MaMon.getText().trim();
+        String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
+        String tenMon = txt_TenMon.getText().trim();
+        String giaText = txt_DonGia.getText().trim();
+        String hinhanh = lblHinh.getText().trim();
+        
+        if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
+        
+        if(CheckTrungMa(maMon)){
+            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
+            return;
+        }
+        
+        long donGia = 0;
+        try {
+            donGia = Long.parseLong(giaText);
+        } catch (NumberFormatException  e) {
+            System.out.println("Giá trị không hợp lệ!");
+        }
+
+        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
+        if (ApiCaller.suaSanPham(sp)) {
+            JOptionPane.showMessageDialog(null, "Sửa thành công!");
+            LoadSanPham(); 
+        }else{
+            JOptionPane.showMessageDialog(null, "Sửa thất bại!");
+        }
     }//GEN-LAST:event_btn_SuaActionPerformed
 
     private void btn_TaoMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_TaoMoiActionPerformed
@@ -572,15 +631,73 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
     private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
         // TODO add your handling code here:
-        String maMon = txt_MaMon.getText();
-        String loaiMon = cbo_DanhMuc.getSelectedItem().toString();
-        String tenMon = txt_TenMon.getText();
-        long donGia = Long.parseLong(txt_DonGia.getText());
+        String maMon = txt_MaMon.getText().trim();
+        String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
+        String tenMon = txt_TenMon.getText().trim();
+        String giaText = txt_DonGia.getText().trim();
+        String hinhanh = lblHinh.getText().trim();
         
+        if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
+        
+        if(CheckTrungMa(maMon)){
+            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
+            return;
+        }
+        
+        long donGia = 0;
+        try {
+            donGia = Long.parseLong(giaText);
+        } catch (NumberFormatException  e) {
+            System.out.println("Giá trị không hợp lệ!");
+        }
+        
+        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
+        if (ApiCaller.themSanPham(sp)) {
+            JOptionPane.showMessageDialog(null, "Thêm thành công!");
+            LoadSanPham(); 
+        }else{
+            JOptionPane.showMessageDialog(null, "Thêm thất bại!");
+        }
     }//GEN-LAST:event_btn_ThemActionPerformed
 
+    private boolean CheckTrungMa(String maMon){
+        List<SanPham> dssp = new ArrayList<>();
+        dssp = ApiCaller.timSanPham(maMon);
+        return dssp.isEmpty();
+    }
+    
+    private boolean IsEmpty(String maMon, String tenMon, String donGiaTxt, String maLoai){
+        if (maMon.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Mã món không được để trống!");
+                return true;
+        }
+        
+        if (maLoai.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Loại món không được để trống!");
+                return true;
+        }
+        
+        if (tenMon.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên món không được để trống!");
+                return true;
+        }
+        
+        if (donGiaTxt.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Giá không được để trống!");
+            return true;
+        }
+        return false;
+    }
+    
     private void tbl_MonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_MonMouseClicked
         // TODO add your handling code here:
+        int i = tbl_Mon.getSelectedRow();
+        DefaultTableModel tb = (DefaultTableModel) tbl_Mon.getModel();
+        txt_MaMon.setText(tb.getValueAt(i, 0).toString());
+        txt_TenMon.setText(tb.getValueAt(i, 1).toString());
+        txt_DonGia.setText(tb.getValueAt(i, 2).toString());
+        cbo_DanhMuc.setSelectedItem(tb.getValueAt(i, 3).toString());
+        lblHinh.setText(tb.getValueAt(i, 4).toString());
     }//GEN-LAST:event_tbl_MonMouseClicked
 
     private void btn_SuaLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaLMActionPerformed
@@ -611,6 +728,22 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
     private void btn_XoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XoaActionPerformed
         // TODO add your handling code here:
+        String maMon = txt_MaMon.getText().trim();
+        int confirm = JOptionPane.showConfirmDialog(this,
+                    "Bạn có chắc chắn muốn xóa sản phẩm mã: " + maMon + " không?",
+                    "Xác nhận xóa",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+            
+        if (ApiCaller.xoaSanPham(maMon)) {
+            JOptionPane.showMessageDialog(null, "Xóa thành công!");
+            LoadSanPham(); 
+        }else{
+            JOptionPane.showMessageDialog(null, "Xóa thất bại!");
+        }
+
     }//GEN-LAST:event_btn_XoaActionPerformed
 
     /**

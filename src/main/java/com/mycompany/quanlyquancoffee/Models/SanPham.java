@@ -31,7 +31,7 @@ public class SanPham {
     
     @ManyToOne
     @JoinColumn(name = "ma_loai")
-    private LoaiMon maLoai;
+    private LoaiMon maLoai = new LoaiMon();
     
     @Column(name = "hinh_anh", length = 255)
     private String hinhAnh;
@@ -41,14 +41,19 @@ public class SanPham {
     public SanPham() {
     }
 
-    public SanPham(String maMon, String tenMon, long gia, LoaiMon maLoai, String hinhAnh) {
+    public SanPham(String maMon, String tenMon, long gia, String maLoai, String hinhAnh) {
         this.maMon = maMon;
         this.tenMon = tenMon;
         this.gia = gia;
-        this.maLoai = maLoai;
+        this.maLoai= new LoaiMon();
+        this.maLoai.setMaLoai(maLoai);
         this.hinhAnh = hinhAnh;
     }
 
+    public String getTenLoai(){
+        return maLoai != null ? maLoai.getTenLoai() : "";
+    }
+    
     public String getMaMon() {
         return maMon;
     }
@@ -74,8 +79,8 @@ public class SanPham {
         this.gia = gia;
     }
 
-    public LoaiMon getMaLoai() {
-        return maLoai;
+    public String getMaLoai() {
+        return maLoai.getMaLoai();
     }
 
     public void setMaLoai(LoaiMon maLoai) {
