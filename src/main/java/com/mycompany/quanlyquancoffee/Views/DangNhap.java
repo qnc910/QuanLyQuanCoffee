@@ -68,6 +68,12 @@ public class DangNhap extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Username");
 
+        txt_userName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_userNameActionPerformed(evt);
+            }
+        });
+
         btn_dangNhap.setBackground(new java.awt.Color(51, 255, 0));
         btn_dangNhap.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_dangNhap.setText("Đăng nhập");
@@ -112,7 +118,7 @@ public class DangNhap extends javax.swing.JFrame {
                             .addComponent(cboVaitro, 0, 150, Short.MAX_VALUE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btn_dangNhap)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
                         .addComponent(btn_dangKy, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -189,7 +195,7 @@ public class DangNhap extends javax.swing.JFrame {
         String tenDangNhap = txt_userName.getText();
          String matKhau = new String(txt_passWord.getPassword());
          String q = cboVaitro.getSelectedItem().toString();
-         String quyen ="";
+         String quyen ="admin";
          if(q.equals("nhân viên")){
               quyen = "nhanvien";
          }
@@ -269,6 +275,10 @@ public class DangNhap extends javax.swing.JFrame {
             System.exit(0); // Thoát hoàn toàn chương trình
         }
     }//GEN-LAST:event_btn_dangKyActionPerformed
+
+    private void txt_userNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_userNameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_userNameActionPerformed
 
     /**
      * @param args the command line arguments

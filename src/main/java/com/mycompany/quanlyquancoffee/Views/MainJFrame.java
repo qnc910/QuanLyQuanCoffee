@@ -669,7 +669,10 @@ public class MainJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabelMinMouseClicked
 
     private void lblSanPhamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSanPhamMouseClicked
-        
+        SanPhamJFrame sanphamForm = new SanPhamJFrame();
+        sanphamForm.setVisible(true);
+        sanphamForm.setLocationRelativeTo(null);
+        this.dispose();
     }//GEN-LAST:event_lblSanPhamMouseClicked
 
     private void lblThucDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThucDonMouseClicked
