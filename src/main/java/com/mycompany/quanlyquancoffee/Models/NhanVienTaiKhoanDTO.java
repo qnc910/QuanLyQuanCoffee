@@ -1,16 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlyquancoffee.Models;
 
-/**
- *
- * @author HELLO
-*/
-
 import java.util.Date;
-
 
 public class NhanVienTaiKhoanDTO {
     private String maNV;
@@ -22,15 +12,15 @@ public class NhanVienTaiKhoanDTO {
     private Date ngayVaoLam;
     private String viTri;
 
-    private String tenDangNhap;
-    private String quyen;
+    private TaiKhoanDTO taiKhoan;
 
-    // Constructors
-    public NhanVienTaiKhoanDTO() {}
+    public NhanVienTaiKhoanDTO() {
+    }
 
+    // Constructor đầy đủ
     public NhanVienTaiKhoanDTO(String maNV, String hoTen, String cmnd, String sdt,
                                String diaChi, Date ngaySinh, Date ngayVaoLam,
-                               String viTri, String tenDangNhap, String quyen) {
+                               String viTri, TaiKhoanDTO taiKhoan) {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.cmnd = cmnd;
@@ -39,89 +29,54 @@ public class NhanVienTaiKhoanDTO {
         this.ngaySinh = ngaySinh;
         this.ngayVaoLam = ngayVaoLam;
         this.viTri = viTri;
-        this.tenDangNhap = tenDangNhap;
-        this.quyen = quyen;
+        this.taiKhoan = taiKhoan;
     }
 
-    // Getters and Setters
-    public String getMaNV() {
-        return maNV;
-    }
-
-    public void setMaNV(String maNV) {
+    // Constructor dùng cho JPQL custom
+    public NhanVienTaiKhoanDTO(String maNV, String hoTen, String cmnd, String sdt,
+                               String diaChi, Date ngaySinh, Date ngayVaoLam,
+                               String viTri, String tenDangNhap, String matKhau, String quyen) {
         this.maNV = maNV;
-    }
-
-    public String getHoTen() {
-        return hoTen;
-    }
-
-    public void setHoTen(String hoTen) {
         this.hoTen = hoTen;
-    }
-
-    public String getCmnd() {
-        return cmnd;
-    }
-
-    public void setCmnd(String cmnd) {
         this.cmnd = cmnd;
-    }
-
-    public String getSdt() {
-        return sdt;
-    }
-
-    public void setSdt(String sdt) {
         this.sdt = sdt;
-    }
-
-    public String getDiaChi() {
-        return diaChi;
-    }
-
-    public void setDiaChi(String diaChi) {
         this.diaChi = diaChi;
-    }
-
-    public Date getNgaySinh() {
-        return ngaySinh;
-    }
-
-    public void setNgaySinh(Date ngaySinh) {
         this.ngaySinh = ngaySinh;
-    }
-
-    public Date getNgayVaoLam() {
-        return ngayVaoLam;
-    }
-
-    public void setNgayVaoLam(Date ngayVaoLam) {
         this.ngayVaoLam = ngayVaoLam;
-    }
-
-    public String getViTri() {
-        return viTri;
-    }
-
-    public void setViTri(String viTri) {
         this.viTri = viTri;
+
+        this.taiKhoan = new TaiKhoanDTO();
+        this.taiKhoan.setTenDangNhap(tenDangNhap);
+        this.taiKhoan.setMatKhau(matKhau);      // ✅ Gán mật khẩu
+        this.taiKhoan.setQuyen(quyen);
+        this.taiKhoan.setMaNV(maNV);
     }
 
-    public String getTenDangNhap() {
-        return tenDangNhap;
-    }
+    // Getters & Setters
+    public String getMaNV() { return maNV; }
+    public void setMaNV(String maNV) { this.maNV = maNV; }
 
-    public void setTenDangNhap(String tenDangNhap) {
-        this.tenDangNhap = tenDangNhap;
-    }
+    public String getHoTen() { return hoTen; }
+    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
 
-    public String getQuyen() {
-        return quyen;
-    }
+    public String getCmnd() { return cmnd; }
+    public void setCmnd(String cmnd) { this.cmnd = cmnd; }
 
-    public void setQuyen(String quyen) {
-        this.quyen = quyen;
-    }
+    public String getSdt() { return sdt; }
+    public void setSdt(String sdt) { this.sdt = sdt; }
+
+    public String getDiaChi() { return diaChi; }
+    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
+
+    public Date getNgaySinh() { return ngaySinh; }
+    public void setNgaySinh(Date ngaySinh) { this.ngaySinh = ngaySinh; }
+
+    public Date getNgayVaoLam() { return ngayVaoLam; }
+    public void setNgayVaoLam(Date ngayVaoLam) { this.ngayVaoLam = ngayVaoLam; }
+
+    public String getViTri() { return viTri; }
+    public void setViTri(String viTri) { this.viTri = viTri; }
+
+    public TaiKhoanDTO getTaiKhoan() { return taiKhoan; }
+    public void setTaiKhoan(TaiKhoanDTO taiKhoan) { this.taiKhoan = taiKhoan; }
 }
-

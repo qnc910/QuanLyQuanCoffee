@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlyquancoffee.Models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -21,10 +18,10 @@ public class TaiKhoan {
     @Column(name = "quyen", length = 20)
     private String quyen;
 
-    // Liên kết với NhanVien qua ma_nv (mỗi tài khoản chỉ gắn với 1 nhân viên)
-    @JsonIgnore
-    @OneToOne
+    // Liên kết với NhanVien qua ma_nv
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_nv", referencedColumnName = "ma_nv", nullable = true)
+    @JsonIgnore
     private NhanVien nhanVien;
 
     public TaiKhoan() {}
@@ -68,6 +65,7 @@ public class TaiKhoan {
         this.nhanVien = nhanVien;
     }
 
+    @JsonProperty("maNV")
     public String getMaNV() {
         return nhanVien != null ? nhanVien.getMaNV() : null;
     }

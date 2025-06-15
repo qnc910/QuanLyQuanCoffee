@@ -1,30 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlyquancoffee.Controllers;
 
 import com.mycompany.quanlyquancoffee.Models.NhanVien;
+import com.mycompany.quanlyquancoffee.Models.TaiKhoan;
 import com.mycompany.quanlyquancoffee.Models.NhanVienTaiKhoanDTO;
+import com.mycompany.quanlyquancoffee.Models.TaiKhoanDTO;
 import com.mycompany.quanlyquancoffee.repository.NhanVienRepository;
-import java.util.List;
-import java.util.Optional;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-/**
- *
- * @author HELLO
- */
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/nhanvien")
 public class NhanVienController {
@@ -32,58 +21,99 @@ public class NhanVienController {
     @Autowired
     private NhanVienRepository nhanVienRepo;
 
-    // Lấy danh sách nhân viên
-    @GetMapping
+    // ✅ Lấy danh sách nhân viên (thuần)
+    @GetMapping("/all")
     public List<NhanVien> getAllNhanVien() {
         return nhanVienRepo.findAll();
     }
-    
 
-    @GetMapping("/api/nhanvien")
+    // ✅ Lấy danh sách nhân viên kèm tài khoản
+    @GetMapping("/with-account")
     public ResponseEntity<List<NhanVienTaiKhoanDTO>> getDanhSachNhanVienVaTaiKhoan() {
         List<NhanVienTaiKhoanDTO> danhSach = nhanVienRepo.getDanhSachNhanVienVaTaiKhoan();
         return ResponseEntity.ok(danhSach);
     }
 
-    // Thêm nhân viên
-    @PostMapping
-    public ResponseEntity<?> createNhanVien(@RequestBody NhanVien nv) {
-        if (nhanVienRepo.existsById(nv.getMaNV())) {
+    // ✅ Thêm nhân viên + tài khoản
+    @PostMapping("/add")
+    public ResponseEntity<?> createNhanVien(@RequestBody NhanVienTaiKhoanDTO dto) {
+        if (nhanVienRepo.existsById(dto.getMaNV())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Mã nhân viên đã tồn tại.");
         }
-        return ResponseEntity.ok(nhanVienRepo.save(nv));
+
+        NhanVien nv = new NhanVien();
+        nv.setMaNV(dto.getMaNV());
+        nv.setHoTen(dto.getHoTen());
+        nv.setCmnd(dto.getCmnd());
+        nv.setSdt(dto.getSdt());
+        nv.setDiaChi(dto.getDiaChi());
+        nv.setNgaySinh(dto.getNgaySinh());
+        nv.setNgayVaoLam(dto.getNgayVaoLam());
+        nv.setViTri(dto.getViTri());
+
+        TaiKhoanDTO taiKhoanDTO = dto.getTaiKhoan();
+        if (taiKhoanDTO != null) {
+            TaiKhoan tk = new TaiKhoan();
+            tk.setTenDangNhap(taiKhoanDTO.getTenDangNhap());
+            tk.setMatKhau(taiKhoanDTO.getMatKhau());
+            tk.setQuyen(taiKhoanDTO.getQuyen());
+            tk.setNhanVien(nv); // Quan hệ 2 chiều
+            nv.setTaiKhoan(tk);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(nhanVienRepo.save(nv));
     }
 
-    // Cập nhật nhân viên
+    // ✅ Cập nhật nhân viên + tài khoản
     @PutMapping("/{maNV}")
-    public ResponseEntity<?> updateNhanVien(@PathVariable String maNV, @RequestBody NhanVien nv) {
-        if (!nhanVienRepo.existsById(maNV)) {
+    public ResponseEntity<?> updateNhanVien(@PathVariable String maNV, @RequestBody NhanVienTaiKhoanDTO dto) {
+        Optional<NhanVien> optionalNV = nhanVienRepo.findById(maNV);
+        if (optionalNV.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy nhân viên.");
         }
-        nv.setMaNV(maNV);
-        return ResponseEntity.ok(nhanVienRepo.save(nv));
+
+        NhanVien nv = optionalNV.get();
+
+        // Cập nhật thông tin nhân viên
+        nv.setHoTen(dto.getHoTen());
+        nv.setCmnd(dto.getCmnd());
+        nv.setSdt(dto.getSdt());
+        nv.setDiaChi(dto.getDiaChi());
+        nv.setNgaySinh(dto.getNgaySinh());
+        nv.setNgayVaoLam(dto.getNgayVaoLam());
+        nv.setViTri(dto.getViTri());
+
+        // Cập nhật tài khoản nếu có
+        TaiKhoanDTO taiKhoanDTO = dto.getTaiKhoan();
+        if (taiKhoanDTO != null) {
+            TaiKhoan tk = nv.getTaiKhoan();
+            if (tk == null) {
+                tk = new TaiKhoan();
+                tk.setNhanVien(nv); // liên kết lại với nhân viên
+            }
+
+            tk.setTenDangNhap(taiKhoanDTO.getTenDangNhap());
+            tk.setMatKhau(taiKhoanDTO.getMatKhau()); // nếu có mã hóa thì mã hóa ở đây
+            tk.setQuyen(taiKhoanDTO.getQuyen());
+
+            nv.setTaiKhoan(tk);
+        }
+
+        // Lưu vào DB
+        nhanVienRepo.save(nv);
+
+        return ResponseEntity.ok("Cập nhật nhân viên thành công.");
     }
 
-    // Xoá nhân viên
+    // ✅ Xoá nhân viên
     @DeleteMapping("/{maNV}")
+    @Transactional
     public ResponseEntity<?> deleteNhanVien(@PathVariable String maNV) {
         if (!nhanVienRepo.existsById(maNV)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy nhân viên.");
         }
+
         nhanVienRepo.deleteById(maNV);
         return ResponseEntity.ok("Xoá thành công.");
     }
-
-    // Tìm nhân viên theo mã
-   @GetMapping("/{maNV}")
-    public ResponseEntity<?> getNhanVienById(@PathVariable String maNV) {
-        Optional<NhanVien> nv = nhanVienRepo.findById(maNV);
-        if (nv.isPresent()) {
-            return ResponseEntity.ok(nv.get()); // Trả về NhanVien
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy."); // Trả về String
-        }
-    }
-
 }
-

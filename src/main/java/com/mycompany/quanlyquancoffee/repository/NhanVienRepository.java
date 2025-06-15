@@ -13,7 +13,7 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, String> {
     // Truy vấn danh sách nhân viên và tài khoản liên kết (LEFT JOIN)
     @Query("SELECT new com.mycompany.quanlyquancoffee.Models.NhanVienTaiKhoanDTO(" +
            "nv.maNV, nv.hoTen, nv.cmnd, nv.sdt, nv.diaChi, nv.ngaySinh, nv.ngayVaoLam, nv.viTri, " +
-           "tk.tenDangNhap, tk.quyen) " +
+           "tk.tenDangNhap, tk.matKhau,tk.quyen) " +
            "FROM NhanVien nv LEFT JOIN nv.taiKhoan tk")
     List<NhanVienTaiKhoanDTO> getDanhSachNhanVienVaTaiKhoan();
 
