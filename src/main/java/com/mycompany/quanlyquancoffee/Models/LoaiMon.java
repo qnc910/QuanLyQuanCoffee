@@ -51,5 +51,8 @@ public class LoaiMon {
         this.tenLoai = tenLoai;
     }
     
-    
+    @Override
+    public String toString() {
+        return maLoai + " - " + tenLoai;
+    }
 }

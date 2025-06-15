@@ -2,7 +2,13 @@ package com.mycompany.quanlyquancoffee.Views;
 
 import DTO.SanPhamDTO;
 import com.mycompany.quanlyquancoffee.Helper.ApiCaller;
+import com.mycompany.quanlyquancoffee.Helper.ApiLoaiMon;
+import com.mycompany.quanlyquancoffee.Helper.ImageRenderer;
+import com.mycompany.quanlyquancoffee.Helper.UserSession;
+import com.mycompany.quanlyquancoffee.Models.LoaiMon;
 import com.mycompany.quanlyquancoffee.Models.SanPham;
+import java.awt.Image;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,8 +17,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -34,8 +46,37 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);// center form in the screen
         LoadSanPham();
         LoadDanhMuc();
+        LoadDanhSachMon();
+        
+        /*
+        if(!UserSession.getQuyen().equals("admin")){
+            btn_Sua.setEnabled(false);
+            btn_Xoa.setEnabled(false);
+            btn_ThemLM.setEnabled(false);
+            btn_SuaLM.setEnabled(false);
+            btn_XoaLM.setEnabled(false);
+        }
+        */
     }
 
+    private void LoadDanhSachMon(){
+        try {           
+        listmon.removeAll();
+        DefaultListModel<String> model = new DefaultListModel<>();
+        
+        List<LoaiMon> ds = ApiLoaiMon.layDanhSachLoaiMon();
+        
+        for(LoaiMon lm : ds){
+                model.addElement(lm.toString());
+            }
+        
+        listmon.setModel(model);
+        listmon.setSelectedIndex(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     Map<String, String> danhMucMap = new HashMap<>();
     private void LoadDanhMuc(){
         try {
@@ -71,6 +112,9 @@ public class SanPhamJFrame extends javax.swing.JFrame {
                     sp.getHinhAnh()
                 });
             }
+            
+            tbl_Mon.getColumnModel().getColumn(4).setCellRenderer(new ImageRenderer());
+            tbl_Mon.setRowHeight(60);
             tbl_Mon.setModel(tb);
             
         } catch (Exception e) {
@@ -83,7 +127,8 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         cbo_DanhMuc.setSelectedIndex(0);
         txt_TenMon.setText("");
         txt_DonGia.setText("");
-        lblHinh.setText("");
+        lblHinh.setIcon(null);
+        txt_MaMon.setEnabled(true);
     }
 
     /**
@@ -113,6 +158,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         btn_SuaLM = new javax.swing.JButton();
         btn_XoaLM = new javax.swing.JButton();
         lblguita = new javax.swing.JLabel();
+        btn_TaoMoiML = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tbl_Mon = new javax.swing.JTable();
@@ -259,6 +305,16 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
         lblguita.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        btn_TaoMoiML.setBackground(new java.awt.Color(34, 167, 240));
+        btn_TaoMoiML.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        btn_TaoMoiML.setForeground(new java.awt.Color(255, 255, 255));
+        btn_TaoMoiML.setText("Tạo mới");
+        btn_TaoMoiML.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_TaoMoiMLActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -269,13 +325,14 @@ public class SanPhamJFrame extends javax.swing.JFrame {
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(btn_ThemLM)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_SuaLM)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
+                        .addComponent(btn_TaoMoiML)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btn_XoaLM, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel6Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btn_SuaLM)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel6Layout.createSequentialGroup()
                                         .addComponent(jLabel22)
@@ -298,7 +355,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane3)
-                    .addComponent(lblguita, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lblguita, javax.swing.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel22)
@@ -306,12 +363,13 @@ public class SanPhamJFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel23)
-                    .addComponent(txtTenLoaiMon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTenLoaiMon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_SuaLM))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_ThemLM)
-                    .addComponent(btn_SuaLM)
-                    .addComponent(btn_XoaLM))
+                    .addComponent(btn_XoaLM)
+                    .addComponent(btn_TaoMoiML))
                 .addGap(15, 15, 15))
         );
 
@@ -472,7 +530,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
@@ -509,7 +567,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(91, Short.MAX_VALUE)
+                .addContainerGap(144, Short.MAX_VALUE)
                 .addComponent(lblbanner, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(68, 68, 68))
         );
@@ -533,7 +591,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         PanelThucdonLayout.setVerticalGroup(
             PanelThucdonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelThucdonLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(0, 24, Short.MAX_VALUE)
                 .addGroup(PanelThucdonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -589,77 +647,6 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_label_MinimizeMouseClicked
 
-    private void btn_ChonHinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ChonHinhActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btn_ChonHinhActionPerformed
-
-    private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
-        // TODO add your handling code here:
-        String maMon = txt_MaMon.getText().trim();
-        String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
-        String tenMon = txt_TenMon.getText().trim();
-        String giaText = txt_DonGia.getText().trim();
-        String hinhanh = lblHinh.getText().trim();
-        
-        if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
-        
-        if(CheckTrungMa(maMon)){
-            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
-            return;
-        }
-        
-        long donGia = 0;
-        try {
-            donGia = Long.parseLong(giaText);
-        } catch (NumberFormatException  e) {
-            System.out.println("Giá trị không hợp lệ!");
-        }
-
-        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
-        if (ApiCaller.suaSanPham(sp)) {
-            JOptionPane.showMessageDialog(null, "Sửa thành công!");
-            LoadSanPham(); 
-        }else{
-            JOptionPane.showMessageDialog(null, "Sửa thất bại!");
-        }
-    }//GEN-LAST:event_btn_SuaActionPerformed
-
-    private void btn_TaoMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_TaoMoiActionPerformed
-        // TODO add your handling code here:
-        clear();
-    }//GEN-LAST:event_btn_TaoMoiActionPerformed
-
-    private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
-        // TODO add your handling code here:
-        String maMon = txt_MaMon.getText().trim();
-        String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
-        String tenMon = txt_TenMon.getText().trim();
-        String giaText = txt_DonGia.getText().trim();
-        String hinhanh = lblHinh.getText().trim();
-        
-        if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
-        
-        if(CheckTrungMa(maMon)){
-            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
-            return;
-        }
-        
-        long donGia = 0;
-        try {
-            donGia = Long.parseLong(giaText);
-        } catch (NumberFormatException  e) {
-            System.out.println("Giá trị không hợp lệ!");
-        }
-        
-        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
-        if (ApiCaller.themSanPham(sp)) {
-            JOptionPane.showMessageDialog(null, "Thêm thành công!");
-            LoadSanPham(); 
-        }else{
-            JOptionPane.showMessageDialog(null, "Thêm thất bại!");
-        }
-    }//GEN-LAST:event_btn_ThemActionPerformed
-
     private boolean CheckTrungMa(String maMon){
         List<SanPham> dssp = new ArrayList<>();
         dssp = ApiCaller.timSanPham(maMon);
@@ -689,29 +676,6 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         return false;
     }
     
-    private void tbl_MonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_MonMouseClicked
-        // TODO add your handling code here:
-        int i = tbl_Mon.getSelectedRow();
-        DefaultTableModel tb = (DefaultTableModel) tbl_Mon.getModel();
-        txt_MaMon.setText(tb.getValueAt(i, 0).toString());
-        txt_TenMon.setText(tb.getValueAt(i, 1).toString());
-        txt_DonGia.setText(tb.getValueAt(i, 2).toString());
-        cbo_DanhMuc.setSelectedItem(tb.getValueAt(i, 3).toString());
-        lblHinh.setText(tb.getValueAt(i, 4).toString());
-    }//GEN-LAST:event_tbl_MonMouseClicked
-
-    private void btn_SuaLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaLMActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btn_SuaLMActionPerformed
-
-    private void btn_ThemLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemLMActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btn_ThemLMActionPerformed
-
-    private void listmonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listmonMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_listmonMouseClicked
-
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
         // TODO add your handling code here:
         MainJFrame sp = new MainJFrame();
@@ -722,29 +686,221 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel1MouseClicked
 
-    private void btn_XoaLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XoaLMActionPerformed
+    private void btn_ChonHinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ChonHinhActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btn_XoaLMActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn hình ảnh");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Hình ảnh", "jpg", "jpeg", "png"));
+
+        int result = fileChooser.showOpenDialog(this);
+        if(result == JFileChooser.APPROVE_OPTION){
+            File selectedFile = fileChooser.getSelectedFile();
+            String imagePath = selectedFile.getAbsolutePath();
+
+            ImageIcon icon = new ImageIcon(imagePath);
+            Image scaledImage = icon.getImage().getScaledInstance(lblHinh.getWidth(), lblHinh.getHeight(), Image.SCALE_SMOOTH);
+            lblHinh.setIcon(new ImageIcon(scaledImage));
+        }
+    }//GEN-LAST:event_btn_ChonHinhActionPerformed
+
+    private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
+        // TODO add your handling code here:
+        String maMon = txt_MaMon.getText().trim();
+        String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
+        String tenMon = txt_TenMon.getText().trim();
+        String giaText = txt_DonGia.getText().trim();
+        String hinhanh = lblHinh.getText().trim();
+
+        if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
+
+        if(CheckTrungMa(maMon)){
+            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
+            return;
+        }
+
+        long donGia = 0;
+        try {
+            donGia = Long.parseLong(giaText);
+        } catch (NumberFormatException  e) {
+            System.out.println("Giá trị không hợp lệ!");
+        }
+
+        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
+        if (ApiCaller.suaSanPham(sp)) {
+            JOptionPane.showMessageDialog(null, "Sửa thành công!");
+            LoadSanPham();
+        }else{
+            JOptionPane.showMessageDialog(null, "Sửa thất bại!");
+        }
+    }//GEN-LAST:event_btn_SuaActionPerformed
 
     private void btn_XoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XoaActionPerformed
         // TODO add your handling code here:
         String maMon = txt_MaMon.getText().trim();
         int confirm = JOptionPane.showConfirmDialog(this,
-                    "Bạn có chắc chắn muốn xóa sản phẩm mã: " + maMon + " không?",
-                    "Xác nhận xóa",
-                    JOptionPane.YES_NO_OPTION);
-            if (confirm != JOptionPane.YES_OPTION) {
-                return;
-            }
-            
+            "Bạn có chắc chắn muốn xóa sản phẩm mã: " + maMon + " không?",
+            "Xác nhận xóa",
+            JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
         if (ApiCaller.xoaSanPham(maMon)) {
             JOptionPane.showMessageDialog(null, "Xóa thành công!");
-            LoadSanPham(); 
+            LoadSanPham();
         }else{
             JOptionPane.showMessageDialog(null, "Xóa thất bại!");
         }
-
     }//GEN-LAST:event_btn_XoaActionPerformed
+
+    private void btn_TaoMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_TaoMoiActionPerformed
+        // TODO add your handling code here:
+        clear();
+    }//GEN-LAST:event_btn_TaoMoiActionPerformed
+
+    private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
+        // TODO add your handling code here:
+        String maMon = txt_MaMon.getText().trim();
+        String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
+        String tenMon = txt_TenMon.getText().trim();
+        String giaText = txt_DonGia.getText().trim();
+        String hinhanh = lblHinh.getText().trim();
+
+        if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
+
+        if(!CheckTrungMa(maMon)){
+            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
+            return;
+        }
+
+        long donGia = 0;
+        try {
+            donGia = Long.parseLong(giaText);
+        } catch (NumberFormatException  e) {
+            System.out.println("Giá trị không hợp lệ!");
+        }
+
+        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
+        if (ApiCaller.themSanPham(sp)) {
+            JOptionPane.showMessageDialog(null, "Thêm thành công!");
+            LoadSanPham();
+        }else{
+            JOptionPane.showMessageDialog(null, "Thêm thất bại!");
+        }
+    }//GEN-LAST:event_btn_ThemActionPerformed
+
+    private void tbl_MonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_MonMouseClicked
+        // TODO add your handling code here:
+        int i = tbl_Mon.getSelectedRow();
+        DefaultTableModel tb = (DefaultTableModel) tbl_Mon.getModel();
+        txt_MaMon.setText(tb.getValueAt(i, 0).toString());
+        txt_TenMon.setText(tb.getValueAt(i, 1).toString());
+        txt_DonGia.setText(tb.getValueAt(i, 2).toString());
+        cbo_DanhMuc.setSelectedItem(tb.getValueAt(i, 3).toString());
+        lblHinh.setIcon(new ImageIcon("../Images/" + tb.getValueAt(i, 4).toString()));
+        txt_MaMon.setEnabled(false);
+    }//GEN-LAST:event_tbl_MonMouseClicked
+
+    private void btn_XoaLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XoaLMActionPerformed
+        // TODO add your handling code here:
+        String maLoai = txtMaLM.getText().trim();
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Bạn có chắc chắn muốn xóa sản phẩm mã: " + maLoai + " không?",
+            "Xác nhận xóa",
+            JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (ApiLoaiMon.xoaLoaiMon(maLoai)) {
+            JOptionPane.showMessageDialog(null, "Xóa thành công!");
+            LoadDanhSachMon();
+        }else{
+            JOptionPane.showMessageDialog(null, "Xóa thất bại!");
+        }
+    }//GEN-LAST:event_btn_XoaLMActionPerformed
+
+    private void btn_SuaLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaLMActionPerformed
+        // TODO add your handling code here:
+        String maLM = txtMaLM.getText().trim();
+        String tenLm = txtTenLoaiMon.getText().trim();
+
+        if(CheckEmpty(maLM, tenLm)) return;
+
+        LoaiMon lm = new LoaiMon(maLM, tenLm);
+        if (ApiLoaiMon.suaLoaiMon(lm)) {
+            JOptionPane.showMessageDialog(null, "Sửa thành công!");
+            LoadDanhSachMon();
+            LoadSanPham();
+        }else{
+            JOptionPane.showMessageDialog(null, "Sửa thất bại!");
+        }
+    }//GEN-LAST:event_btn_SuaLMActionPerformed
+
+    private boolean CheckEmpty(String maLoai, String tenLoai){
+        if (maLoai.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Mã loại không được để trống!");
+                return true;
+        }
+        
+        if (tenLoai.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên loại không được để trống!");
+                return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean CheckTrungMaLoai(String maLoai){
+        List<LoaiMon> dssp = new ArrayList<>();
+        dssp = ApiLoaiMon.timLoaiMon(maLoai);
+        return dssp.isEmpty();
+    }
+    
+    private void btn_ThemLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemLMActionPerformed
+        // TODO add your handling code here:
+        String maLM = txtMaLM.getText().trim();
+        String tenLm = txtTenLoaiMon.getText().trim();
+
+        if(CheckEmpty(maLM, tenLm)) return;
+
+        if(!CheckTrungMaLoai(maLM)){
+            JOptionPane.showMessageDialog(this, "Mã loại đã tồn tại!");
+            return;
+        }
+
+        LoaiMon lm = new LoaiMon(maLM, tenLm);
+        if (ApiLoaiMon.themLoaiMon(lm)) {
+            JOptionPane.showMessageDialog(null, "Thêm thành công!");
+            LoadDanhSachMon();
+        }else{
+            JOptionPane.showMessageDialog(null, "Thêm thất bại!");
+        }
+    }//GEN-LAST:event_btn_ThemLMActionPerformed
+
+    private void listmonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listmonMouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 1){
+            int index = listmon.locationToIndex(evt.getPoint());
+            if (index != -1) {
+                String selected = listmon.getModel().getElementAt(index);
+                
+                String[] parts = selected.split(" - ", 2);
+                if (parts.length == 2) {
+                    txtMaLM.setText(parts[0].trim());
+                    txtTenLoaiMon.setText(parts[1].trim());
+                }
+            }
+        }
+        txtMaLM.setEnabled(false);
+    }//GEN-LAST:event_listmonMouseClicked
+
+    private void btn_TaoMoiMLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_TaoMoiMLActionPerformed
+        // TODO add your handling code here:
+        txtMaLM.setText("");
+        txtTenLoaiMon.setText("");
+        txtMaLM.setEnabled(true);
+    }//GEN-LAST:event_btn_TaoMoiMLActionPerformed
 
     /**
      * @param args the command line arguments
@@ -790,6 +946,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     private javax.swing.JButton btn_Sua;
     private javax.swing.JButton btn_SuaLM;
     private javax.swing.JButton btn_TaoMoi;
+    private javax.swing.JButton btn_TaoMoiML;
     private javax.swing.JButton btn_Them;
     private javax.swing.JButton btn_ThemLM;
     private javax.swing.JButton btn_Xoa;
