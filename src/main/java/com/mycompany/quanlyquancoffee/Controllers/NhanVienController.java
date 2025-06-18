@@ -2,8 +2,8 @@ package com.mycompany.quanlyquancoffee.Controllers;
 
 import com.mycompany.quanlyquancoffee.Models.NhanVien;
 import com.mycompany.quanlyquancoffee.Models.TaiKhoan;
-import com.mycompany.quanlyquancoffee.Models.NhanVienTaiKhoanDTO;
-import com.mycompany.quanlyquancoffee.Models.TaiKhoanDTO;
+import DTO.NhanVienTaiKhoanDTO;
+import DTO.TaiKhoanDTO;
 import com.mycompany.quanlyquancoffee.repository.NhanVienRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.mycompany.quanlyquancoffee.repository;
 
 import com.mycompany.quanlyquancoffee.Models.NhanVien;
-import com.mycompany.quanlyquancoffee.Models.NhanVienTaiKhoanDTO;
+import DTO.NhanVienTaiKhoanDTO;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface NhanVienRepository extends JpaRepository<NhanVien, String> {
 
     // Truy vấn danh sách nhân viên và tài khoản liên kết (LEFT JOIN)
-    @Query("SELECT new com.mycompany.quanlyquancoffee.Models.NhanVienTaiKhoanDTO(" +
+    @Query("SELECT new DTO.NhanVienTaiKhoanDTO(" +
            "nv.maNV, nv.hoTen, nv.cmnd, nv.sdt, nv.diaChi, nv.ngaySinh, nv.ngayVaoLam, nv.viTri, " +
            "tk.tenDangNhap, tk.matKhau,tk.quyen) " +
            "FROM NhanVien nv LEFT JOIN nv.taiKhoan tk")

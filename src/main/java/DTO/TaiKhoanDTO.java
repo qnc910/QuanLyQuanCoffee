@@ -1,4 +1,4 @@
-package com.mycompany.quanlyquancoffee.Models;
+package DTO;
 
 public class TaiKhoanDTO {
     private String tenDangNhap;

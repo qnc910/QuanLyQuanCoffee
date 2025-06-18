@@ -202,6 +202,11 @@ public class FormBan extends javax.swing.JFrame {
         tab.setBackground(new java.awt.Color(44, 62, 80));
         tab.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tab.setMaximumSize(new java.awt.Dimension(32767, 548));
+        tab.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                tabComponentShown(evt);
+            }
+        });
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(236, 240, 241));
@@ -855,6 +860,11 @@ public class FormBan extends javax.swing.JFrame {
 
         // TODO add your handling code here:
     }//GEN-LAST:event_txtsearchKeyPressed
+
+    private void tabComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_tabComponentShown
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_tabComponentShown
    
 
 

@@ -1,5 +1,6 @@
-package com.mycompany.quanlyquancoffee.Models;
+package DTO;
 
+import DTO.TaiKhoanDTO;
 import java.util.Date;
 
 public class NhanVienTaiKhoanDTO {

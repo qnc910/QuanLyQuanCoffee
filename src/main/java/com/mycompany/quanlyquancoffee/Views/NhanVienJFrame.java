@@ -2,7 +2,7 @@ package com.mycompany.quanlyquancoffee.Views;
 
 
 import aj.org.objectweb.asm.TypeReference;
-import com.mycompany.quanlyquancoffee.Models.NhanVienTaiKhoanDTO;
+import DTO.NhanVienTaiKhoanDTO;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
