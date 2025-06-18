@@ -19,7 +19,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JToolBar.Separator;
 import com.mycompany.quanlyquancoffee.Helper.UserSession;
 import javax.swing.JOptionPane;
-
+import com.mycompany.quanlyquancoffee.Views.FormBan;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -689,7 +689,8 @@ public class MainJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_lblSanPhamMouseClicked
 
     private void lblThucDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThucDonMouseClicked
-        
+          FormBan banForm = new FormBan();
+            banForm.setVisible(true);
     }//GEN-LAST:event_lblThucDonMouseClicked
 
     private void lblKhoHangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKhoHangMouseClicked
@@ -761,6 +762,12 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void btndxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndxActionPerformed
         // TODO add your handling code here:
+         DangNhap sp = new DangNhap();
+        sp.setVisible(true);
+        sp.pack();
+        sp.setLocationRelativeTo(null);
+        sp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
     }//GEN-LAST:event_btndxActionPerformed
 
     private void bntphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntphActionPerformed
@@ -807,6 +814,7 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void lblThucDonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThucDonMouseExited
     // TODO add your handling code here:
+    
     }//GEN-LAST:event_lblThucDonMouseExited
 
     /**
