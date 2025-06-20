@@ -53,6 +53,7 @@ public class SanPhamController {
             dto.setTenMon(sp.getTenMon());
             dto.setGia(sp.getGia());
             dto.setHinhAnh(sp.getHinhAnh());
+            dto.setMaLoai(sp.getMaLoai());
             dto.setTenLoai(sp.getMaMon() != null ? sp.getTenLoai() : "Không rõ");
             
             dssp.add(dto);

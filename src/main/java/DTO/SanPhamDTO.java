@@ -5,7 +5,6 @@
 package DTO;
 
 import com.mycompany.quanlyquancoffee.Models.SanPham;
-import com.mycompany.quanlyquancoffee.Models.SanPham;
 
 /**
  *

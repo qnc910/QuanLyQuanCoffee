@@ -23,7 +23,7 @@ public class SanPham {
     @Column(name = "ma_mon", length = 10)
     private String maMon ;
     
-    @Column(name = "ten_mon", length = 10)
+    @Column(name = "ten_mon", length = 100)
     private String tenMon;
     
     @Column(name = "gia")
