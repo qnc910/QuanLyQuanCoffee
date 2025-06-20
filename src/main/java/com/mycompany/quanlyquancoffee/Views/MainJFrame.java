@@ -696,7 +696,11 @@ public class MainJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_lblThucDonMouseClicked
 
     private void lblKhoHangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKhoHangMouseClicked
-       
+
+     if (!kiemTraQuyen("admin")) return;
+        quanlytable tableForm = new quanlytable();
+        tableForm.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_lblKhoHangMouseClicked
 
     private void lblThongKeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThongKeMouseClicked
