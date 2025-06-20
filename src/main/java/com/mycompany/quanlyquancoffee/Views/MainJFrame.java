@@ -354,7 +354,7 @@ public class MainJFrame extends javax.swing.JFrame {
         jPanel8.setBackground(new java.awt.Color(44, 62, 80));
         jPanel8.setPreferredSize(new java.awt.Dimension(279, 172));
 
-        lblThongKe.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Pictures/icon/bars-chart (1).png"))); // NOI18N
+        lblThongKe.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Pictures/icon/thongke.jpg"))); // NOI18N
         lblThongKe.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         lblThongKe.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -601,18 +601,17 @@ public class MainJFrame extends javax.swing.JFrame {
             .addGroup(cdnLayout.createSequentialGroup()
                 .addGroup(cdnLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblwelcome, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1287, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(cdnLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, cdnLayout.createSequentialGroup()
-                            .addComponent(lblduoi1, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblgiua, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblphai, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(lblduoi, javax.swing.GroupLayout.PREFERRED_SIZE, 1285, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(cdnLayout.createSequentialGroup()
+                        .addComponent(lblduoi1, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblgiua, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblphai, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblduoi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1285, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         cdnLayout.setVerticalGroup(
@@ -687,11 +686,13 @@ public class MainJFrame extends javax.swing.JFrame {
     private void lblSanPhamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSanPhamMouseClicked
         SanPhamJFrame spForm = new SanPhamJFrame();
             spForm.setVisible(true);
+            this.dispose();
     }//GEN-LAST:event_lblSanPhamMouseClicked
 
     private void lblThucDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThucDonMouseClicked
           FormBan banForm = new FormBan();
             banForm.setVisible(true);
+            this.dispose();
     }//GEN-LAST:event_lblThucDonMouseClicked
 
     private void lblKhoHangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKhoHangMouseClicked
@@ -712,6 +713,7 @@ public class MainJFrame extends javax.swing.JFrame {
         // Mở giao diện quản lý NV nếu là admin
         NhanVienJFrame nvForm = new NhanVienJFrame();
         nvForm.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_lblNhanVienMouseClicked
 
     private void lblwelcomeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblwelcomeMouseClicked
@@ -734,7 +736,7 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void lblthongtinMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblthongtinMouseExited
  // TODO add your handling code here:
- 
+        
     }//GEN-LAST:event_lblthongtinMouseExited
 
     private void lbldangnhapMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbldangnhapMouseClicked
@@ -758,7 +760,8 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void btndmkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndmkActionPerformed
             // TODO add your handling code here:
-            
+            new DoiMatKhau().setVisible(true);
+          
     }//GEN-LAST:event_btndmkActionPerformed
 
     private void btndxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndxActionPerformed

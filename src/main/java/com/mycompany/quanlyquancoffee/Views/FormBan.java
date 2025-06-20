@@ -1,5 +1,8 @@
 package com.mycompany.quanlyquancoffee.Views;
-
+import javax.swing.JOptionPane;
+import DTO.SanPhamDTO;
+import com.mycompany.quanlyquancoffee.Helper.ApiCaller;
+import com.mycompany.quanlyquancoffee.Models.SanPham;
 import java.awt.Color;
 import java.awt.Desktop;
 import static java.awt.Frame.DEFAULT_CURSOR;
@@ -116,6 +119,11 @@ public class FormBan extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(1366, 768));
         setUndecorated(true);
         setPreferredSize(new java.awt.Dimension(1366, 768));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel13.setBackground(new java.awt.Color(44, 62, 80));
         jPanel13.setForeground(new java.awt.Color(44, 62, 80));
@@ -302,18 +310,20 @@ public class FormBan extends javax.swing.JFrame {
 
         tblOrder.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "Mã Món", "Tên Món", "Giá Tiền"
+
             }
         ));
         tblOrder.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblOrderMouseClicked(evt);
+            }
+        });
+        tblOrder.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                tblOrderComponentShown(evt);
             }
         });
         jScrollPane1.setViewportView(tblOrder);
@@ -332,7 +342,7 @@ public class FormBan extends javax.swing.JFrame {
         btnorder.setBackground(new java.awt.Color(34, 167, 240));
         btnorder.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnorder.setForeground(new java.awt.Color(255, 255, 255));
-        btnorder.setText("ODER");
+        btnorder.setText("ORDER");
         btnorder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnorderActionPerformed(evt);
@@ -727,7 +737,7 @@ public class FormBan extends javax.swing.JFrame {
                 .addComponent(Menuorder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 515, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -767,9 +777,36 @@ public class FormBan extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
  
- 
+   private void loadsanpham() {
+    try {
+        String[] head = {"Mã món", "Tên món", "Giá", "Hình ảnh"};
+        DefaultTableModel tb = new DefaultTableModel(head, 0);
 
+        List<SanPhamDTO> ds = ApiCaller.layDanhSachSanPham();
+
+        for (SanPhamDTO sp : ds) {
+            tb.addRow(new Object[]{
+                sp.getMaMon(),
+                sp.getTenMon(),
+                sp.getGia(),
+                sp.getHinhAnh() // ✅ THÊM CỘT NÀY
+            });
+        }
+
+        tblOrder.setModel(tb);
+
+        // ✅ ẨN CỘT HÌNH ẢNH (nếu muốn) để vẫn lấy được
+        tblOrder.getColumnModel().getColumn(3).setMinWidth(0);
+        tblOrder.getColumnModel().getColumn(3).setMaxWidth(0);
+        tblOrder.getColumnModel().getColumn(3).setWidth(0);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+}
 
     private void jPanel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseClicked
 //jpancapnhat.setVisible(false);
@@ -792,6 +829,28 @@ public class FormBan extends javax.swing.JFrame {
 
     private void tblOrderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrderMouseClicked
                // TODO add your handling code here:
+        int selectedRow = tblOrder.getSelectedRow();
+       if (selectedRow != -1) {
+           String tenFileAnh = tblOrder.getValueAt(selectedRow, 3).toString();
+           String ten = (String) tblOrder.getValueAt(selectedRow,1);
+           String gia = tblOrder.getValueAt(selectedRow, 2).toString();
+           // Đường dẫn trong resource (đặt trong src/main/resources/Pictures/sanpham/)
+           java.net.URL imgURL = getClass().getResource("/Pictures/sanpham/" + tenFileAnh);
+           if (imgURL != null) {
+               ImageIcon icon = new ImageIcon(imgURL);
+               Image scaledImage = icon.getImage().getScaledInstance(
+                       lblHinh.getWidth(), 
+                       lblHinh.getHeight(), 
+                       Image.SCALE_SMOOTH
+               );
+               lblHinh.setIcon(new ImageIcon(scaledImage));
+               lblten.setText(ten);
+               lblgia.setText(gia);
+           } else {
+               System.err.println("Ảnh không tìm thấy trong resources/Pictures/sanpham/" + tenFileAnh);
+               lblHinh.setIcon(null);
+           }
+       }       
     }//GEN-LAST:event_tblOrderMouseClicked
 
     private void tabs2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabs2MouseClicked
@@ -833,6 +892,13 @@ public class FormBan extends javax.swing.JFrame {
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
              // TODO add your handling code here:
+             // TODO add your handling code here:
+        MainJFrame sp = new MainJFrame();
+        sp.setVisible(true);
+        sp.pack();
+        sp.setLocationRelativeTo(null);
+        sp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
     }//GEN-LAST:event_jLabel1MouseClicked
 
     private void btnchuyenbanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnchuyenbanActionPerformed
@@ -848,8 +914,30 @@ public class FormBan extends javax.swing.JFrame {
     }//GEN-LAST:event_lblgiaActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        
+        String keyword = txtsearch.getText().trim();
+        try {
+              String[] head = {"Mã món", "Tên món", "Giá", "Hình ảnh"};
+            DefaultTableModel tb = new DefaultTableModel(head, 0);
+            List<SanPhamDTO> ds = ApiCaller.timSanPhamGanDung(keyword);
 
-
+            for (SanPhamDTO sp : ds) {
+                tb.addRow(new Object[]{
+                    sp.getMaMon(),
+                    sp.getTenMon(),
+                    sp.getGia(),
+                    sp.getHinhAnh() 
+                });
+            }
+              // ✅ ẨN CỘT HÌNH ẢNH (nếu muốn) để vẫn lấy được
+            tblOrder.getColumnModel().getColumn(3).setMinWidth(0);
+            tblOrder.getColumnModel().getColumn(3).setMaxWidth(0);
+            tblOrder.getColumnModel().getColumn(3).setWidth(0);
+            tblOrder.setModel(tb);
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+        // TODO add your handling code here:
 // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -857,14 +945,28 @@ public class FormBan extends javax.swing.JFrame {
   
     
     private void txtsearchKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtsearchKeyPressed
-
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_txtsearchKeyPressed
 
     private void tabComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_tabComponentShown
         // TODO add your handling code here:
         
     }//GEN-LAST:event_tabComponentShown
+
+    private void tblOrderComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_tblOrderComponentShown
+        // TODO add your handling code here:
+       loadsanpham();
+    }//GEN-LAST:event_tblOrderComponentShown
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        // TODO add your handling code here:
+        
+                                         
+        // TODO add your handling code here:
+       loadsanpham();
+                                   
+   
+    }//GEN-LAST:event_formWindowOpened
    
 
 

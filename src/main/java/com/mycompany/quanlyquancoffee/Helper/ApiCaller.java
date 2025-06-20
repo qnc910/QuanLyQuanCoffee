@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -116,4 +118,41 @@ public class ApiCaller {
             return false;
         }
     }
+    
+        public static List<SanPhamDTO> timSanPhamGanDung(String keyword) {
+            List<SanPhamDTO> danhSach = new ArrayList<>();
+            try {
+                // ✅ Encode keyword để tránh lỗi tiếng Việt hoặc ký tự đặc biệt
+                String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+                // ✅ Tạo URL đúng
+                URL url = new URL("http://localhost:1234/api/sanpham/search?keyword=" + encodedKeyword);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
+
+                // ✅ Đọc response
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = reader.readLine()) != null) {
+                    response.append(inputLine);
+                }
+
+                reader.close();
+
+                // ✅ Parse JSON thành List<SanPham>
+                ObjectMapper mapper = new ObjectMapper();
+                danhSach = Arrays.asList(mapper.readValue(response.toString(), SanPhamDTO[].class));
+
+                conn.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return danhSach;
+        }
+
+
 }

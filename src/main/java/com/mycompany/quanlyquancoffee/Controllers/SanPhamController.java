@@ -107,4 +107,10 @@ public class SanPhamController {
         sanPhamRepository.deleteById(maMon);
         return ResponseEntity.ok("Đã xoá sản phẩm");
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<?> searchSanPham(@RequestParam("keyword") String keyword) {
+        List<SanPham> result = sanPhamRepository.findByMaMonContainingIgnoreCaseOrTenMonContainingIgnoreCase(keyword, keyword);
+        return ResponseEntity.ok(result);
+    }
 }
