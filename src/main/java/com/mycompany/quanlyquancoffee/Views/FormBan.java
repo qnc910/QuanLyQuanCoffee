@@ -1,11 +1,18 @@
 package com.mycompany.quanlyquancoffee.Views;
+import DTO.BanDTO;
 import javax.swing.JOptionPane;
 import DTO.SanPhamDTO;
+import com.mycompany.quanlyquancoffee.Controllers.BanController;
+import com.mycompany.quanlyquancoffee.Controllers.KhuVucController;
+import com.mycompany.quanlyquancoffee.Helper.ApiBan;
 import com.mycompany.quanlyquancoffee.Helper.ApiCaller;
+import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import com.mycompany.quanlyquancoffee.Models.SanPham;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import static java.awt.Frame.DEFAULT_CURSOR;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
@@ -28,6 +35,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
@@ -778,7 +786,7 @@ public class FormBan extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
- 
+    
    private void loadsanpham() {
     try {
         String[] head = {"Mã món", "Tên món", "Giá", "Hình ảnh"};
@@ -807,6 +815,40 @@ public class FormBan extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
 }
+   private void loadban(){
+    try {
+         tab.removeAll();
+
+         List<KhuVuc> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
+         for (KhuVuc kv : dsKhuVuc) {
+             JPanel panelKhuVuc = new JPanel(new GridLayout(0, 4, 10, 10));
+             List<BanDTO> dsBan = ApiBan.layDanhSachBanTheoKhuVuc(kv.getMaKV());
+
+             for (BanDTO ban : dsBan) {
+                 JButton btnBan = new JButton(ban.getTenBan());
+                 btnBan.setPreferredSize(new Dimension(100, 60));
+
+                 // Đổi màu theo trạng thái
+                 if ("Trống".equals(ban.getTrangThai())) {
+                     btnBan.setBackground(Color.GREEN);
+                 } else {
+                     btnBan.setBackground(Color.RED);
+                 }
+                 btnBan.setForeground(Color.WHITE);
+
+                 btnBan.addActionListener(e -> {
+                     System.out.println("Đã chọn " + ban.getTenBan() + " (" + ban.getTrangThai() + ")");
+                 });
+
+                 panelKhuVuc.add(btnBan);
+             }
+
+             tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
+         }
+     } catch (Exception e) {
+         e.printStackTrace();
+    }
+   }
 
     private void jPanel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseClicked
 //jpancapnhat.setVisible(false);
@@ -964,6 +1006,7 @@ public class FormBan extends javax.swing.JFrame {
                                          
         // TODO add your handling code here:
        loadsanpham();
+       loadban();
                                    
    
     }//GEN-LAST:event_formWindowOpened

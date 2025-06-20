@@ -95,4 +95,22 @@ public class BanController {
         banRepository.deleteById(maBan);
         return ResponseEntity.ok("Đã xoá bàn");
     }
+    @GetMapping("/bykhuvuc/{maKV}")
+    public List<BanDTO> getBanByKhuVuc(@PathVariable String maKV) {
+        List<Ban> ds = banRepository.findByKhuvuc_MaKV(maKV);
+        List<BanDTO> dsban = new ArrayList<>();
+
+        for (Ban ban : ds) {
+            BanDTO dto = new BanDTO();
+            dto.setMaBan(ban.getMaBan());
+            dto.setTenBan(ban.getTenBan());
+            dto.setMaKV(ban.getMaKV());
+            dto.setTenKV(ban.getTenKV());
+            dto.setTrangThai(ban.getTrangThai());
+            dsban.add(dto);
+        }
+
+        return dsban;
+    }
+
 }
