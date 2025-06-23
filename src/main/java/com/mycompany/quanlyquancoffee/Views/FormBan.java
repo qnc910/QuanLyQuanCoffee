@@ -11,7 +11,9 @@ import com.mycompany.quanlyquancoffee.Models.SanPham;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import static java.awt.Frame.DEFAULT_CURSOR;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Label;
@@ -815,40 +817,53 @@ public class FormBan extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
 }
-   private void loadban(){
-    try {
-         tab.removeAll();
+    private void loadban() {
+       try {
+           tab.removeAll();
 
-         List<KhuVuc> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
-         for (KhuVuc kv : dsKhuVuc) {
-             JPanel panelKhuVuc = new JPanel(new GridLayout(0, 4, 10, 10));
-             List<BanDTO> dsBan = ApiBan.layDanhSachBanTheoKhuVuc(kv.getMaKV());
+           List<KhuVuc> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
+           for (KhuVuc kv : dsKhuVuc) {
+               // Panel khu vực sử dụng FlowLayout để nút dính góc trên bên trái
+               JPanel panelKhuVuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
-             for (BanDTO ban : dsBan) {
-                 JButton btnBan = new JButton(ban.getTenBan());
-                 btnBan.setPreferredSize(new Dimension(100, 60));
+               List<BanDTO> dsBan = ApiBan.layDanhSachBanTheoKhuVuc(kv.getMaKV());
 
-                 // Đổi màu theo trạng thái
-                 if ("Trống".equals(ban.getTrangThai())) {
-                     btnBan.setBackground(Color.GREEN);
-                 } else {
-                     btnBan.setBackground(Color.RED);
-                 }
-                 btnBan.setForeground(Color.WHITE);
+               for (BanDTO ban : dsBan) {
+                   JButton btnBan = new JButton(ban.getTenBan());
+                   btnBan.setPreferredSize(new Dimension(100, 100)); // Vuông
+                   // Màu trạng thái
+                   // ✅ Lấy icon
+                    java.net.URL imgURL = getClass().getResource("/Pictures/Hinh/admin.jpg");
+                    if (imgURL != null) {
+                        ImageIcon icon = new ImageIcon(imgURL);
+                        Image scaledImage = icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+                        btnBan.setIcon(new ImageIcon(scaledImage));
+                    } else {
+                        System.err.println("Không tìm thấy ảnh /Pictures/Hinh/admin.jpg");
+                    }
+                   if ("Trống".equals(ban.getTrangThai())) {
+                       btnBan.setBackground(Color.GREEN);
+                   } else {
+                       btnBan.setBackground(Color.RED);
+                   }
+                   btnBan.setForeground(Color.WHITE);
 
-                 btnBan.addActionListener(e -> {
-                     System.out.println("Đã chọn " + ban.getTenBan() + " (" + ban.getTrangThai() + ")");
-                 });
+                   btnBan.addActionListener(e -> {
+                       System.out.println("Đã chọn " + ban.getTenBan() + " (" + ban.getTrangThai() + ")");
+                   });
 
-                 panelKhuVuc.add(btnBan);
-             }
+                   panelKhuVuc.add(btnBan);
+               }
 
-             tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
-         }
-     } catch (Exception e) {
-         e.printStackTrace();
-    }
+               tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
+           }
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
    }
+
+
+
 
     private void jPanel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseClicked
 //jpancapnhat.setVisible(false);
