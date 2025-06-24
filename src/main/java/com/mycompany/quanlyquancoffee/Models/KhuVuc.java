@@ -50,5 +50,8 @@ public class KhuVuc {
         this.tenKV = tenKV;
     }
     
-    
+    @Override
+    public String toString() {
+        return maKV + " - " + tenKV;
+    }
 }

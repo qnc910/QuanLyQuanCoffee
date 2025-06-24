@@ -1,16 +1,28 @@
 package com.mycompany.quanlyquancoffee.Views;
 
+import DTO.BanDTO;
+import com.mycompany.quanlyquancoffee.Helper.ApiBan;
+import com.mycompany.quanlyquancoffee.Helper.ApiKhuVuc;
+import com.mycompany.quanlyquancoffee.Helper.ImageRenderer;
+import com.mycompany.quanlyquancoffee.Models.Ban;
+import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -30,8 +42,83 @@ public class quanlytable extends javax.swing.JFrame {
     public quanlytable() {
         initComponents();
         this.setLocationRelativeTo(null);// center form in the screen
+        LoadKhuVuc();
+        LoadBan();
+        LoadCboKhuVuc();
+    }
+    
+    private void LoadKhuVuc(){
+        try {           
+        listkhuvuc.removeAll();
+        DefaultListModel<String> model = new DefaultListModel<>();
+        
+        List<KhuVuc> ds = ApiKhuVuc.getAllKhuVuc();
+        
+        for(KhuVuc lm : ds){
+                model.addElement(lm.toString());
+            }
+        
+        listkhuvuc.setModel(model);
+        listkhuvuc.setSelectedIndex(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void LoadBan(){
+        try {
+            tblBan.removeAll();
+            String[] head = {"Mã bàn", "Tên bàn", "Khu vực"};
+            DefaultTableModel tb = new DefaultTableModel(head, 0);
+            
+            List<BanDTO> ds = ApiBan.getAllBan();
+            
+            for(BanDTO ban : ds){
+                tb.addRow(new Object[]{
+                    ban.getMaBan(),
+                    ban.getTenBan(),
+                    ban.getTenKV()
+                });
+            }
+            
+            tblBan.setModel(tb);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    Map<String, String> khuVucMap = new HashMap<>();
+    private void LoadCboKhuVuc(){
+        try {
+            Connection con = Connect.ConnectDB.KetnoiDB();
+            String sql = "Select * From khu_vuc";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            cbokhuvuc.addItem("---Chọn khu vực---");
+            khuVucMap.put("---Chọn khu vực---","");
+            while(rs.next()){
+                cbokhuvuc.addItem(rs.getString("ten_kv"));
+                khuVucMap.put(rs.getString("ten_kv"), rs.getString("ma_kv"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    private void clearKhuVuc(){
+        txtMaKhuvuc.setText("");
+        txtTenKhuVuc.setText("");
+        txtMaKhuvuc.setEnabled(true);
+    }
+    
+    private void clearBan(){
+        txtMaBan.setText("");
+        txtTenBan.setText("");
+        cbokhuvuc.setSelectedIndex(0);
+        txtMaBan.setEnabled(true);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -60,7 +147,7 @@ public class quanlytable extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        likhuvuc = new javax.swing.JList<>();
+        listkhuvuc = new javax.swing.JList<>();
         jPanel7 = new javax.swing.JPanel();
         jLabel27 = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
@@ -248,21 +335,17 @@ public class quanlytable extends javax.swing.JFrame {
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
-        likhuvuc.setBackground(java.awt.Color.lightGray);
-        likhuvuc.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        likhuvuc.setForeground(java.awt.Color.red);
-        likhuvuc.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        likhuvuc.setLayoutOrientation(javax.swing.JList.VERTICAL_WRAP);
-        likhuvuc.addMouseListener(new java.awt.event.MouseAdapter() {
+        listkhuvuc.setBackground(java.awt.Color.lightGray);
+        listkhuvuc.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        listkhuvuc.setForeground(java.awt.Color.red);
+        listkhuvuc.setLayoutOrientation(javax.swing.JList.VERTICAL_WRAP);
+        listkhuvuc.setVisibleRowCount(10);
+        listkhuvuc.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                likhuvucMouseClicked(evt);
+                listkhuvucMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(likhuvuc);
+        jScrollPane1.setViewportView(listkhuvuc);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -280,8 +363,6 @@ public class quanlytable extends javax.swing.JFrame {
         jLabel26.setText("Khu Vực");
 
         jLabel4.setText("Bàn");
-
-        cbokhuvuc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jButton7.setBackground(new java.awt.Color(34, 167, 240));
         jButton7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -333,7 +414,7 @@ public class quanlytable extends javax.swing.JFrame {
                     .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addGroup(jPanel7Layout.createSequentialGroup()
                             .addComponent(jLabel26)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
                             .addComponent(cbokhuvuc, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(jPanel7Layout.createSequentialGroup()
                             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -578,44 +659,211 @@ public class quanlytable extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jLabelMinMouseClicked
 
-    private void likhuvucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_likhuvucMouseClicked
+    private void listkhuvucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listkhuvucMouseClicked
         // TODO add your handling code here:
-    }//GEN-LAST:event_likhuvucMouseClicked
+        if (evt.getClickCount() == 1){
+            int index = listkhuvuc.locationToIndex(evt.getPoint());
+            if (index != -1) {
+                String selected = listkhuvuc.getModel().getElementAt(index);
+                
+                String[] parts = selected.split(" - ", 2);
+                if (parts.length == 2) {
+                    txtMaKhuvuc.setText(parts[0].trim());
+                    txtTenKhuVuc.setText(parts[1].trim());
+                }
+            }
+        }
+        txtMaKhuvuc.setEnabled(false);
+    }//GEN-LAST:event_listkhuvucMouseClicked
 
     private void tblBanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblBanMouseClicked
         // TODO add your handling code here:
+        int i = tblBan.getSelectedRow();
+        DefaultTableModel tb = (DefaultTableModel) tblBan.getModel();
+        txtMaBan.setText(tb.getValueAt(i, 0).toString());
+        txtTenBan.setText(tb.getValueAt(i, 1).toString());
+        cbokhuvuc.setSelectedItem(tb.getValueAt(i, 2).toString());
+        txtMaBan.setEnabled(false);
     }//GEN-LAST:event_tblBanMouseClicked
 
+    private boolean IsEmptyKV(String maKV, String tenKV){
+        if (maKV.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Mã khu vực không được để trống!");
+                return true;
+        }
+        
+        if (tenKV.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên khu vực không được để trống!");
+                return true;
+        }
+        return false;
+    }
+    
+    private boolean CheckTrungMaKV(String maKV){
+        List<KhuVuc> dskv = new ArrayList<>();
+        dskv = ApiKhuVuc.timKhuVuc(maKV);
+        return dskv.isEmpty();
+    }
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
      // TODO add your handling code here:
+        String maKV = txtMaKhuvuc.getText().trim();
+        String tenKv = txtTenKhuVuc.getText().trim();
+        
+        if(IsEmptyKV(maKV, tenKv)) return;
+        
+        if(!CheckTrungMaKV(maKV)){
+            JOptionPane.showMessageDialog(this, "Mã khu vực đã tồn tại!");
+            return;
+        }
+        
+        KhuVuc kv = new KhuVuc(maKV, tenKv);
+        if (ApiKhuVuc.themKhuVuc(kv)) {
+            JOptionPane.showMessageDialog(null, "Thêm thành công!");
+            LoadKhuVuc();
+        }else{
+            JOptionPane.showMessageDialog(null, "Thêm thất bại!");
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+        String maKV = txtMaKhuvuc.getText().trim();
+        String tenKv = txtTenKhuVuc.getText().trim();
+        
+        if(IsEmptyKV(maKV, tenKv)) return;
+        
+        if(!CheckTrungMaKV(maKV)){
+            JOptionPane.showMessageDialog(this, "Mã khu vực đã tồn tại!");
+            return;
+        }
+        
+        KhuVuc kv = new KhuVuc(maKV, tenKv);
+        if (ApiKhuVuc.suaKhuVuc(kv)) {
+            JOptionPane.showMessageDialog(null, "Sửa thành công!");
+            LoadKhuVuc();
+            LoadBan();
+            LoadCboKhuVuc();
+        }else{
+            JOptionPane.showMessageDialog(null, "Sửa thất bại!");
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        String maKV = txtMaKhuvuc.getText().trim();
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Bạn có chắc chắn muốn xóa khu vực mã: " + maKV + " không?",
+            "Xác nhận xóa",
+            JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (ApiKhuVuc.xoaKhuVuc(maKV)) {
+            JOptionPane.showMessageDialog(null, "Xóa thành công!");
+            LoadKhuVuc();
+        }else{
+            JOptionPane.showMessageDialog(null, "Xóa thất bại!");
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
+        clearBan();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+        clearKhuVuc();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
+        String maBan = txtMaBan.getText().trim();
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Bạn có chắc chắn muốn xóa bàn mã: " + maBan + " không?",
+            "Xác nhận xóa",
+            JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (ApiBan.xoaBan(maBan)) {
+            JOptionPane.showMessageDialog(null, "Xóa thành công!");
+            LoadBan();
+        }else{
+            JOptionPane.showMessageDialog(null, "Xóa thất bại!");
+        }
     }//GEN-LAST:event_jButton6ActionPerformed
 
+    private boolean IsEmptyBan(String maBan, String tenBan, String khuVuc){ 
+        if (maBan.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Mã bàn không được để trống!");
+                return true;
+        }
+        
+        if (tenBan.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên bàn không được để trống!");
+                return true;
+        }
+        
+        if (khuVuc.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Khu vực không được để trống!");
+                return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean CheckTrungMaBan(String maBan){
+        List<Ban> dssp = new ArrayList<>();
+        dssp = ApiBan.timBan(maBan);
+        return dssp.isEmpty();
+    }
+    
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
+        String maBan = txtMaBan.getText().trim();
+        String tenBan = txtTenBan.getText().trim();
+        String khuVUc = khuVucMap.get(cbokhuvuc.getSelectedItem().toString().trim());
+        
+        if(IsEmptyBan(maBan, tenBan, khuVUc)) return;
+        
+        if(!CheckTrungMaBan(maBan)){
+            JOptionPane.showMessageDialog(this, "Mã bàn đã tồn tại!");
+            return;
+        }
+        
+        Ban ban = new Ban(maBan, tenBan, khuVUc,"");
+        if (ApiBan.themBan(ban)) {
+            JOptionPane.showMessageDialog(null, "Thêm thành công!");
+            LoadBan();
+        }else{
+            JOptionPane.showMessageDialog(null, "Thêm thất bại!");
+        }
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // TODO add your handling code here:
+        String maBan = txtMaKhuvuc.getText().trim();
+        String tenBan = txtTenKhuVuc.getText().trim();
+        String khuVUc = khuVucMap.get(cbokhuvuc.getSelectedItem().toString().trim());
+        
+        if(IsEmptyBan(maBan, tenBan, khuVUc)) return;
+        
+        if(!CheckTrungMaBan(maBan)){
+            JOptionPane.showMessageDialog(this, "Mã bàn đã tồn tại!");
+            return;
+        }
+        
+        Ban ban = new Ban(maBan, tenBan, khuVUc,"");
+        if (ApiBan.themBan(ban)) {
+            JOptionPane.showMessageDialog(null, "Sửa thành công!");
+            LoadBan();
+        }else{
+            JOptionPane.showMessageDialog(null, "Sửa thất bại!");
+        }
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
@@ -701,7 +949,7 @@ public class quanlytable extends javax.swing.JFrame {
     private javax.swing.JLabel lblbanner;
     private javax.swing.JLabel lblfooter;
     private javax.swing.JLabel lblheadder;
-    private javax.swing.JList<String> likhuvuc;
+    private javax.swing.JList<String> listkhuvuc;
     private javax.swing.JTable tblBan;
     private javax.swing.JTextField txtMaBan;
     private javax.swing.JTextField txtMaKhuvuc;
