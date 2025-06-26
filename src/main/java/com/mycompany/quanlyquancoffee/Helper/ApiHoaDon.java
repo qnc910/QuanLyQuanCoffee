@@ -120,11 +120,13 @@ public class ApiHoaDon {
         if (responseCode == 200) {
             String json = docNoiDung(conn);
             JSONObject obj = new JSONObject(json);
-            return obj.optString("message", "Thành công");
+            return obj.optString("message", "Thành công"); // ✅ sẽ lấy được "Thanh toán thành công"
         } else {
             throw new IOException("Không thể thanh toán hóa đơn");
         }
     }
+
+
     // ✅ Lấy hóa đơn gần nhất trong hôm nay (không quan tâm trạng thái)
 public static HoaDonChiTietDTO layHoaDonHomNayTheoBan(String maBan) throws IOException {
     URL url = new URL(BASE_URL + "/homnay/" + maBan);
@@ -193,6 +195,30 @@ public static void themMonVaoHoaDon(ThemMonRequest req) throws IOException {
     int responseCode = conn.getResponseCode();
     if (responseCode != 200) {
         throw new IOException("Thêm món thất bại. Mã hóa đơn: " + req.getMaHd());
+    }
+}
+
+// 5️⃣ Cập nhật số lượng món trong hóa đơn
+public static void capNhatSoLuong(CapNhatSoLuongDTO req) throws IOException {
+    URL url = new URL(BASE_URL + "/cap-nhat-so-luong");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("PUT");
+    conn.setRequestProperty("Content-Type", "application/json");
+    conn.setDoOutput(true);
+
+    JSONObject body = new JSONObject();
+    body.put("maHd", req.getMaHd());
+    body.put("maMon", req.getMaMon());
+    body.put("soLuongMoi", req.getSoLuongMoi());
+
+    try (OutputStream os = conn.getOutputStream()) {
+        byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+        os.write(input);
+    }
+
+    int responseCode = conn.getResponseCode();
+    if (responseCode != 200) {
+        throw new IOException("Cập nhật thất bại. Mã hóa đơn: " + req.getMaHd());
     }
 }
 

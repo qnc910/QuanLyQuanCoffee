@@ -10,11 +10,14 @@ import DTO.ThemMonRequest;
 import com.mycompany.quanlyquancoffee.Controllers.BanController;
 import com.mycompany.quanlyquancoffee.Controllers.KhuVucController;
 import com.mycompany.quanlyquancoffee.Helper.ApiBan;
+import com.mycompany.quanlyquancoffee.Helper.PdfExporter;
 import com.mycompany.quanlyquancoffee.Helper.ApiHoaDon;
 import com.mycompany.quanlyquancoffee.Helper.ApiSanpham;
 import com.mycompany.quanlyquancoffee.Helper.UserSession;
 import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import com.mycompany.quanlyquancoffee.Models.SanPham;
+import com.mycompany.quanlyquancoffee.Views.XemHoaDonForm;
+
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -40,9 +43,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -539,6 +545,12 @@ private boolean vuaDatBan = false;
         txtNgay.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txtNgay.setForeground(new java.awt.Color(228, 241, 254));
 
+        jScrollPane8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane8MouseClicked(evt);
+            }
+        });
+
         tblchitietban.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
@@ -831,7 +843,7 @@ private boolean vuaDatBan = false;
 }
    private void loadban() {
     try {
-        tab.removeAll();
+        tab.removeAll();  // Xoá tất cả các tab khu vực cũ
 
         List<KhuVuc> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
         for (KhuVuc kv : dsKhuVuc) {
@@ -842,8 +854,9 @@ private boolean vuaDatBan = false;
                 final BanDTO banCopy = ban;
                 JButton btnBan = new JButton(banCopy.getTenBan());
                 btnBan.setPreferredSize(new Dimension(100, 100));
+                btnBan.setForeground(Color.WHITE);
 
-                // Set icon
+                // Set icon nếu cần
                 java.net.URL imgURL = getClass().getResource("/Pictures/Hinh/admin.jpg");
                 if (imgURL != null) {
                     ImageIcon icon = new ImageIcon(imgURL);
@@ -851,34 +864,34 @@ private boolean vuaDatBan = false;
                     btnBan.setIcon(new ImageIcon(scaledImage));
                 }
 
-                try {
-                    HoaDonChiTietDTO hoaDon = ApiHoaDon.layHoaDonHomNayTheoBan(banCopy.getMaBan());
+                // 🟢 Ưu tiên đọc trạng thái bàn từ DB
+                if ("Trống".equalsIgnoreCase(banCopy.getTrangThai())) {
+                    btnBan.setBackground(Color.GREEN);
+                    btnBan.setToolTipText("Bàn trống");
+                } else {
+                    try {
+                        HoaDonChiTietDTO hoaDon = ApiHoaDon.layHoaDonHomNayTheoBan(banCopy.getMaBan());
 
-                    boolean coMon = !hoaDon.getMonAn().isEmpty();
-                    boolean daThanhToan = "Da thanh toan".equalsIgnoreCase(hoaDon.getTrangThai());
+                        boolean coMon = !hoaDon.getMonAn().isEmpty();
+                        boolean daThanhToan = "Da thanh toan".equalsIgnoreCase(hoaDon.getTrangThai());
 
-                    if (daThanhToan) {
-                        btnBan.setBackground(Color.GRAY);
-                        btnBan.setToolTipText("Đã đặt - Đã thanh toán");
-                    } else if (coMon) {
-                        btnBan.setBackground(Color.BLUE);
-                        btnBan.setToolTipText("Đã đặt - Đã order, chưa thanh toán");
-                    } else {
+                        if (daThanhToan) {
+                            btnBan.setBackground(Color.GRAY);
+                            btnBan.setToolTipText("Đã đặt - Đã thanh toán");
+                        } else if (coMon) {
+                            btnBan.setBackground(Color.BLUE);
+                            btnBan.setToolTipText("Đã đặt - Đã order, chưa thanh toán");
+                        } else {
+                            btnBan.setBackground(Color.ORANGE);
+                            btnBan.setToolTipText("Đã đặt - Chưa order");
+                        }
+                    } catch (Exception ex) {
                         btnBan.setBackground(Color.ORANGE);
-                        btnBan.setToolTipText("Đã đặt - Chưa order");
-                    }
-                } catch (Exception ex) {
-                    if ("Trống".equalsIgnoreCase(banCopy.getTrangThai())) {
-                        btnBan.setBackground(Color.GREEN);
-                        btnBan.setToolTipText("Bàn trống");
-                    } else {
-                        btnBan.setBackground(Color.ORANGE);
-                        btnBan.setToolTipText("Đã đặt - Chưa order");
+                        btnBan.setToolTipText("Đã đặt - Không có hóa đơn hôm nay");
                     }
                 }
 
-                btnBan.setForeground(Color.WHITE);
-
+                // 🖱️ Sự kiện click vào nút bàn
                 btnBan.addActionListener(e -> {
                     try {
                         txtmaban.setText(banCopy.getMaBan());
@@ -925,19 +938,20 @@ private boolean vuaDatBan = false;
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(this, "Không có hóa đơn hôm nay cho bàn này", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                         clearHoaDonUI();
+                        btnorder.setEnabled(true);
                     }
                 });
 
                 panelKhuVuc.add(btnBan);
             }
 
-        tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
+            tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
         }
     } catch (Exception e) {
         e.printStackTrace();
     }
-    
 }
+
 
 // ✅ Hàm tiện ích để reset UI khi không có hóa đơn
 private void clearHoaDonUI() {
@@ -980,7 +994,31 @@ private void clearHoaDonUI() {
     
     
     private void tblchitietbanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblchitietbanMouseClicked
-   
+        int selectedRow = tblchitietban.getSelectedRow();
+    if (selectedRow == -1) return;
+
+    Object valMaHd = tblchitietban.getValueAt(selectedRow, 0);
+    Object valMaMon = tblchitietban.getValueAt(selectedRow, 1);
+    Object valTenMon = tblchitietban.getValueAt(selectedRow, 2);
+    Object valGia = tblchitietban.getValueAt(selectedRow, 3);
+    Object valSoLuong = tblchitietban.getValueAt(selectedRow, 4);
+
+    if (valMaHd == null || valMaMon == null || valTenMon == null || valGia == null || valSoLuong == null) {
+        JOptionPane.showMessageDialog(this, "Một số thông tin món đang bị thiếu hoặc chưa load xong.", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String maHd = valMaHd.toString();
+    String maMon = valMaMon.toString();
+    String tenMon = valTenMon.toString();
+    BigDecimal gia = new BigDecimal(valGia.toString());
+    int soLuong = Integer.parseInt(valSoLuong.toString());
+
+    // Gọi form Order
+    Odermon form = new Odermon(this); // sửa nếu bạn dùng Dialog khác JFrame
+    form.setThongTinMon(maHd, maMon, tenMon, gia, soLuong);
+    form.setVisible(true);
+        
     }//GEN-LAST:event_tblchitietbanMouseClicked
 
     private void txtmahoadonInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtmahoadonInputMethodTextChanged
@@ -1043,7 +1081,7 @@ private void clearHoaDonUI() {
              // ✅ 3. Load lại chi tiết hóa đơn
              HoaDonChiTietDTO dtoMoi = ApiHoaDon.layChiTietHoaDonTheoBan(maBan);
              updateChiTietHoaDonTable(dtoMoi);
-
+             loadban();
          } catch (Exception e) {
              e.printStackTrace();
              JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -1105,7 +1143,7 @@ private void clearHoaDonUI() {
                     } else {
                         JOptionPane.showMessageDialog(this, "Trả bàn thất bại. Mã lỗi: " + responseCode);
                     }
-
+                    loadban();
                     conn.disconnect();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1159,11 +1197,73 @@ private void clearHoaDonUI() {
     }//GEN-LAST:event_jLabelCloseMouseClicked
 
     private void btnxembillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxembillActionPerformed
-     
+        try {
+        String maBan = txtmaban.getText(); // lấy mã bàn từ ô nhập hoặc giao diện
+
+        HoaDonChiTietDTO dto = ApiHoaDon.layHoaDonHomNayTheoBan(maBan);
+
+        // ✅ Kiểm tra nếu đã thanh toán thì không mở form
+        if ("Da thanh toan".equalsIgnoreCase(dto.getTrangThai())) {
+            JOptionPane.showMessageDialog(this, "Bàn đang trống (đã thanh toán hóa đơn).", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // ✅ Nếu chưa thanh toán thì mở form xem hóa đơn
+        XemHoaDonForm xem = new XemHoaDonForm(this, dto);
+        xem.setVisible(true);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+
+
+
 
     }//GEN-LAST:event_btnxembillActionPerformed
 
     private void btnthanhtoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnthanhtoanActionPerformed
+
+    String maBan = txtmaban.getText(); // Lấy bàn đang chọn
+
+    try {
+        // 1. Lấy hóa đơn hôm nay (bất kể trạng thái)
+        HoaDonChiTietDTO hd = ApiHoaDon.layHoaDonHomNayTheoBan(maBan);
+
+        if ("Da thanh toan".equalsIgnoreCase(hd.getTrangThai())) {
+            JOptionPane.showMessageDialog(this, "Hóa đơn đã thanh toán rồi!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Gọi API để chuyển trạng thái
+        ApiHoaDon.thanhToan(hd.getMaHd());
+        JOptionPane.showMessageDialog(this, "Đã thanh toán thành công!");
+
+        // 3. Hỏi người dùng có muốn in hóa đơn không?
+        int chon = JOptionPane.showConfirmDialog(this, "Bạn có muốn in hóa đơn không?", "In hóa đơn", JOptionPane.YES_NO_OPTION);
+        if (chon == JOptionPane.YES_OPTION) {
+
+            // Mở file chooser
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Chọn nơi lưu hóa đơn PDF");
+            chooser.setSelectedFile(new File("HoaDon_" + hd.getMaHd() + ".pdf"));
+
+            int userSelection = chooser.showSaveDialog(this);
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = chooser.getSelectedFile();
+
+                // Gọi hàm xuất PDF
+                HoaDonChiTietDTO hdDaCapNhat = ApiHoaDon.layHoaDonHomNayTheoBan(maBan); // lấy lại bản mới sau thanh toán
+                PdfExporter.xuatHoaDonPdf(hdDaCapNhat, fileToSave.getAbsolutePath());
+
+                JOptionPane.showMessageDialog(this, "Đã in hóa đơn vào:\n" + fileToSave.getAbsolutePath());
+            }
+        }
+
+        // Cập nhật lại giao diện bàn (nếu có)
+        loadban();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Lỗi thanh toán: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
 
 // TODO add your handling code here:
     }//GEN-LAST:event_btnthanhtoanActionPerformed
@@ -1244,10 +1344,15 @@ private void clearHoaDonUI() {
        loadsanpham();
        loadban();
        // 🔒 Vô hiệu hóa nút Order
-            btnorder.setEnabled(false);
+            
                                    
    
     }//GEN-LAST:event_formWindowOpened
+
+    private void jScrollPane8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane8MouseClicked
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_jScrollPane8MouseClicked
    
 
 

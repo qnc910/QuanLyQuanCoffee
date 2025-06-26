@@ -653,10 +653,7 @@ public class FormOder extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tabs2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabs2MouseClicked
-        
-
-        
-// TODO add your handling code here:
+ 
     }//GEN-LAST:event_tabs2MouseClicked
     
     private void tblOrderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrderMouseClicked

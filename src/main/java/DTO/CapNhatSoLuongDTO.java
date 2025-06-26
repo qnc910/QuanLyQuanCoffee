@@ -12,7 +12,9 @@ import lombok.Data;
 public class CapNhatSoLuongDTO {
     private String maHd;
     private String maMon;
+    private int soLuongMoi;
 
+    // Getters và setters
     public String getMaHd() {
         return maHd;
     }
@@ -36,6 +38,6 @@ public class CapNhatSoLuongDTO {
     public void setSoLuongMoi(int soLuongMoi) {
         this.soLuongMoi = soLuongMoi;
     }
-    private int soLuongMoi;
 }
+
 

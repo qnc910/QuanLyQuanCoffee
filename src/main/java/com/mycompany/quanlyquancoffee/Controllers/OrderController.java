@@ -2,6 +2,8 @@ package com.mycompany.quanlyquancoffee.Controllers;
 
 import DTO.*;
 import com.mycompany.quanlyquancoffee.Services.HoaDonService;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -75,14 +77,20 @@ public class OrderController {
     }
     
     // 6️⃣ Thanh toán hóa đơn
-    @PutMapping("/thanh-toan/{maHd}")
-    public ResponseEntity<?> thanhToanHoaDon(@PathVariable String maHd) {
-        try {
-            hoaDonService.thanhToanHoaDon(maHd);
-            return ResponseEntity.ok("Thanh toán thành công");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+@PutMapping("/thanh-toan/{maHd}")
+public ResponseEntity<?> thanhToanHoaDon(@PathVariable String maHd) {
+    try {
+        hoaDonService.thanhToanHoaDon(maHd);
 
+        // ✅ Trả về JSON với key "message"
+        Map<String, String> res = new HashMap<>();
+        res.put("message", "Thanh toán thành công");
+        return ResponseEntity.ok(res);
+    } catch (RuntimeException e) {
+        // ❌ Trả về lỗi cũng theo định dạng JSON
+        Map<String, String> err = new HashMap<>();
+        err.put("error", e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+}
 }
