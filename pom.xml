@@ -23,7 +23,27 @@
     </properties>
 
     <dependencies>
-        <!-- JUnit Test -->
+            <!-- Gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.1</version> <!-- hoặc phiên bản mới nhất -->
+        </dependency>
+
+        <!-- Unirest -->
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.13.6</version>
+        </dependency>
+       
+        <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.30</version> <!-- bản mới -->
+        <scope>provided</scope>
+         </dependency>
+            <!-- JUnit Test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

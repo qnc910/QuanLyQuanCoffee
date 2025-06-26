@@ -1,4 +1,4 @@
-package quanly;
+package  com.mycompany.quanlyquancoffee.Views;
 
 
 import javax.swing.JFrame;

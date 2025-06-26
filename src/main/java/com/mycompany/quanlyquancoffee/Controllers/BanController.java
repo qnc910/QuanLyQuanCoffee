@@ -6,11 +6,15 @@ package com.mycompany.quanlyquancoffee.Controllers;
 
 import DTO.BanDTO;
 import com.mycompany.quanlyquancoffee.Models.Ban;
+import com.mycompany.quanlyquancoffee.Models.HoaDon;
 import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import com.mycompany.quanlyquancoffee.repository.BanRepository;
+import com.mycompany.quanlyquancoffee.repository.HoaDonRepository;
 import com.mycompany.quanlyquancoffee.repository.KhuVucRepository;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,9 @@ public class BanController {
     
     @Autowired
     private KhuVucRepository khuVucRepository;
+    
+    @Autowired
+    private HoaDonRepository hoaDonRepository;
     
     
     @GetMapping("/getall")
@@ -112,5 +119,48 @@ public class BanController {
 
         return dsban;
     }
+    
+    @PutMapping("/tra-ban/{maBan}")
+    public ResponseEntity<?> traBan(@PathVariable String maBan) {
+        Optional<Ban> banOpt = banRepository.findById(maBan);
+        if (banOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Không tìm thấy bàn");
+        }
+
+        Ban ban = banOpt.get();
+
+        // Truy vấn hóa đơn hôm nay
+        Optional<HoaDon> hoaDonOpt = hoaDonRepository.findHoaDonHomNayByBan(maBan, LocalDate.now());
+
+        // Nếu có hóa đơn hôm nay và chưa thanh toán => Không thể trả bàn
+        if (hoaDonOpt.isPresent()) {
+            HoaDon hoaDon = hoaDonOpt.get();
+            if (!"Da thanh toan".equalsIgnoreCase(hoaDon.getTrangThai())) {
+                return ResponseEntity.badRequest().body("Bàn hôm nay chưa thanh toán xong, không thể trả bàn.");
+            }
+        }
+                // Nếu không có hóa đơn hôm nay hoặc hóa đơn đã thanh toán -> trả bàn
+            ban.setTrangThai("Trống");
+            banRepository.save(ban);
+
+            return ResponseEntity.ok("Bàn đã được trả thành công.");
+    }
+    
+    @PutMapping("/dat-ban/{maBan}")
+    public ResponseEntity<?> capNhatTrangThai(@PathVariable String maBan, @RequestBody Map<String, String> req) {
+    Optional<Ban> banOpt = banRepository.findById(maBan);
+    if (banOpt.isEmpty()) {
+        return ResponseEntity.status(404).body("Không tìm thấy bàn");
+    }
+
+    Ban ban = banOpt.get();
+    String trangThai = req.get("trangThai");
+    ban.setTrangThai(trangThai);
+    banRepository.save(ban);
+    return ResponseEntity.ok("Đã cập nhật trạng thái bàn");
+}
+
+    
+    
 
 }

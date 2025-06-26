@@ -1,11 +1,18 @@
 package com.mycompany.quanlyquancoffee.Views;
 import DTO.BanDTO;
+import DTO.ChiTietMonDTO;
+import DTO.HoaDonChiTietDTO;
+import DTO.HoaDonResponse;
 import javax.swing.JOptionPane;
 import DTO.SanPhamDTO;
+import DTO.TaoHoaDonRequest;
+import DTO.ThemMonRequest;
 import com.mycompany.quanlyquancoffee.Controllers.BanController;
 import com.mycompany.quanlyquancoffee.Controllers.KhuVucController;
 import com.mycompany.quanlyquancoffee.Helper.ApiBan;
-import com.mycompany.quanlyquancoffee.Helper.ApiCaller;
+import com.mycompany.quanlyquancoffee.Helper.ApiHoaDon;
+import com.mycompany.quanlyquancoffee.Helper.ApiSanpham;
+import com.mycompany.quanlyquancoffee.Helper.UserSession;
 import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import com.mycompany.quanlyquancoffee.Models.SanPham;
 import java.awt.Color;
@@ -24,6 +31,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,6 +72,7 @@ public class FormBan extends javax.swing.JFrame {
 
        
     }
+private boolean vuaDatBan = false;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -291,7 +303,7 @@ public class FormBan extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(tab, javax.swing.GroupLayout.PREFERRED_SIZE, 424, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(35, 35, 35))
+                .addGap(26, 26, 26))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -693,7 +705,7 @@ public class FormBan extends javax.swing.JFrame {
                             .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jLabel13))))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 37, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -743,11 +755,11 @@ public class FormBan extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(Menuorder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 515, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -794,7 +806,7 @@ public class FormBan extends javax.swing.JFrame {
         String[] head = {"Mã món", "Tên món", "Giá", "Hình ảnh"};
         DefaultTableModel tb = new DefaultTableModel(head, 0);
 
-        List<SanPhamDTO> ds = ApiCaller.layDanhSachSanPham();
+        List<SanPhamDTO> ds = ApiSanpham.layDanhSachSanPham();
 
         for (SanPhamDTO sp : ds) {
             tb.addRow(new Object[]{
@@ -817,50 +829,126 @@ public class FormBan extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu sản phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
 }
-    private void loadban() {
-       try {
-           tab.removeAll();
+   private void loadban() {
+    try {
+        tab.removeAll();
 
-           List<KhuVuc> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
-           for (KhuVuc kv : dsKhuVuc) {
-               // Panel khu vực sử dụng FlowLayout để nút dính góc trên bên trái
-               JPanel panelKhuVuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        List<KhuVuc> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
+        for (KhuVuc kv : dsKhuVuc) {
+            JPanel panelKhuVuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
-               List<BanDTO> dsBan = ApiBan.layDanhSachBanTheoKhuVuc(kv.getMaKV());
+            List<BanDTO> dsBan = ApiBan.layDanhSachBanTheoKhuVuc(kv.getMaKV());
+            for (BanDTO ban : dsBan) {
+                final BanDTO banCopy = ban;
+                JButton btnBan = new JButton(banCopy.getTenBan());
+                btnBan.setPreferredSize(new Dimension(100, 100));
 
-               for (BanDTO ban : dsBan) {
-                   JButton btnBan = new JButton(ban.getTenBan());
-                   btnBan.setPreferredSize(new Dimension(100, 100)); // Vuông
-                   // Màu trạng thái
-                   // ✅ Lấy icon
-                    java.net.URL imgURL = getClass().getResource("/Pictures/Hinh/admin.jpg");
-                    if (imgURL != null) {
-                        ImageIcon icon = new ImageIcon(imgURL);
-                        Image scaledImage = icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-                        btnBan.setIcon(new ImageIcon(scaledImage));
+                // Set icon
+                java.net.URL imgURL = getClass().getResource("/Pictures/Hinh/admin.jpg");
+                if (imgURL != null) {
+                    ImageIcon icon = new ImageIcon(imgURL);
+                    Image scaledImage = icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+                    btnBan.setIcon(new ImageIcon(scaledImage));
+                }
+
+                try {
+                    HoaDonChiTietDTO hoaDon = ApiHoaDon.layHoaDonHomNayTheoBan(banCopy.getMaBan());
+
+                    boolean coMon = !hoaDon.getMonAn().isEmpty();
+                    boolean daThanhToan = "Da thanh toan".equalsIgnoreCase(hoaDon.getTrangThai());
+
+                    if (daThanhToan) {
+                        btnBan.setBackground(Color.GRAY);
+                        btnBan.setToolTipText("Đã đặt - Đã thanh toán");
+                    } else if (coMon) {
+                        btnBan.setBackground(Color.BLUE);
+                        btnBan.setToolTipText("Đã đặt - Đã order, chưa thanh toán");
                     } else {
-                        System.err.println("Không tìm thấy ảnh /Pictures/Hinh/admin.jpg");
+                        btnBan.setBackground(Color.ORANGE);
+                        btnBan.setToolTipText("Đã đặt - Chưa order");
                     }
-                   if ("Trống".equals(ban.getTrangThai())) {
-                       btnBan.setBackground(Color.GREEN);
-                   } else {
-                       btnBan.setBackground(Color.RED);
-                   }
-                   btnBan.setForeground(Color.WHITE);
+                } catch (Exception ex) {
+                    if ("Trống".equalsIgnoreCase(banCopy.getTrangThai())) {
+                        btnBan.setBackground(Color.GREEN);
+                        btnBan.setToolTipText("Bàn trống");
+                    } else {
+                        btnBan.setBackground(Color.ORANGE);
+                        btnBan.setToolTipText("Đã đặt - Chưa order");
+                    }
+                }
 
-                   btnBan.addActionListener(e -> {
-                       System.out.println("Đã chọn " + ban.getTenBan() + " (" + ban.getTrangThai() + ")");
-                   });
+                btnBan.setForeground(Color.WHITE);
 
-                   panelKhuVuc.add(btnBan);
-               }
+                btnBan.addActionListener(e -> {
+                    try {
+                        txtmaban.setText(banCopy.getMaBan());
 
-               tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
-           }
-       } catch (Exception e) {
-           e.printStackTrace();
-       }
-   }
+                        if (vuaDatBan) {
+                            vuaDatBan = false;
+                            return;
+                        }
+
+                        if ("Trống".equalsIgnoreCase(banCopy.getTrangThai())) {
+                            JOptionPane.showMessageDialog(this, "Bàn đang trống, không có hóa đơn hôm nay.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                            clearHoaDonUI();
+                            return;
+                        }
+
+                        HoaDonChiTietDTO hd = ApiHoaDon.layHoaDonHomNayTheoBan(banCopy.getMaBan());
+
+                        txtmahoadon.setText(hd.getMaHd());
+                        txtNgay.setText(hd.getNgayLap());
+                        txtgio.setText(hd.getGio());
+
+                        String[] columnNames = {"Mã HDCT", "Mã Món", "Tên Món", "Giá Tiền", "Số Lượng", "Thành Tiền"};
+                        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+
+                        for (ChiTietMonDTO mon : hd.getMonAn()) {
+                            BigDecimal thanhTien = mon.getGiaLucBan().multiply(BigDecimal.valueOf(mon.getSoLuong()));
+                            model.addRow(new Object[]{
+                                hd.getMaHd(),
+                                mon.getMaMon(),
+                                mon.getTenMon(),
+                                mon.getGiaLucBan(),
+                                mon.getSoLuong(),
+                                thanhTien
+                            });
+                        }
+
+                        tblchitietban.setModel(model);
+
+                        DecimalFormat df = new DecimalFormat("#,###");
+                        lbltongtien.setText(df.format(hd.getTongTien()) + " đ");
+
+                        btnorder.setEnabled(true);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Không có hóa đơn hôm nay cho bàn này", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        clearHoaDonUI();
+                    }
+                });
+
+                panelKhuVuc.add(btnBan);
+            }
+
+        tab.addTab(kv.getTenKV(), new JScrollPane(panelKhuVuc));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+}
+
+// ✅ Hàm tiện ích để reset UI khi không có hóa đơn
+private void clearHoaDonUI() {
+    txtmahoadon.setText("");
+    txtNgay.setText("");
+    txtgio.setText("");
+    lbltongtien.setText("");
+    tblchitietban.setModel(new DefaultTableModel());
+    btnorder.setEnabled(false);
+}
+
 
 
 
@@ -869,7 +957,28 @@ public class FormBan extends javax.swing.JFrame {
 //jpancapnhat.setVisible(false);
 //      lolhome();        // TODO add your handling code here:
     }//GEN-LAST:event_jPanel13MouseClicked
+    
+    private void updateChiTietHoaDonTable(HoaDonChiTietDTO dto) {
+    String[] columnNames = {"Mã HDCT", "Mã Món", "Tên Món", "Giá", "Số Lượng", "Thành Tiền"};
+    DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
+    for (ChiTietMonDTO mon : dto.getMonAn()) {
+        BigDecimal thanhTien = mon.getGiaLucBan().multiply(BigDecimal.valueOf(mon.getSoLuong()));
+        model.addRow(new Object[]{
+            dto.getMaHd(),
+            mon.getMaMon(),
+            mon.getTenMon(),
+            mon.getGiaLucBan(),
+            mon.getSoLuong(),
+            thanhTien
+        });
+    }
+    lbltongtien.setText(dto.getTongTien().toString() + " đ");
+    tblchitietban.setModel(model);
+}
+
+    
+    
     private void tblchitietbanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblchitietbanMouseClicked
    
     }//GEN-LAST:event_tblchitietbanMouseClicked
@@ -879,9 +988,68 @@ public class FormBan extends javax.swing.JFrame {
     }//GEN-LAST:event_txtmahoadonInputMethodTextChanged
 
     private void btnorderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnorderActionPerformed
-     
+            String maBan = txtmaban.getText();
+         String maNv = UserSession.getMaNV();
 
-        // TODO add your handling code here:
+         if (maBan.isEmpty()) {
+             JOptionPane.showMessageDialog(this, "Vui lòng chọn bàn trước khi order!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+             return;
+         }
+
+         int row = tblOrder.getSelectedRow();
+         if (row == -1) {
+             JOptionPane.showMessageDialog(this, "Vui lòng chọn món!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+             return;
+         }
+
+         try {
+    String maHd;
+        try {
+            // ✅ 1. Kiểm tra hóa đơn hôm nay theo bàn
+            HoaDonChiTietDTO dto = ApiHoaDon.layHoaDonHomNayTheoBan(maBan); // ← API này KHÔNG quan tâm trạng thái
+            if (!dto.getTrangThai().equalsIgnoreCase("Chua thanh toan")) {
+                // Nếu hóa đơn hôm nay đã thanh toán → tạo hóa đơn mới
+                throw new Exception("Đã thanh toán rồi");
+            }
+            maHd = dto.getMaHd(); // Có hóa đơn chưa thanh toán
+        } catch (Exception ex) {
+            // ❌ Không có hóa đơn hôm nay hoặc đã thanh toán → tạo mới
+            TaoHoaDonRequest req = new TaoHoaDonRequest();
+            req.setMaBan(maBan);
+            req.setMaNv(maNv);
+            HoaDonResponse res = ApiHoaDon.taoHoaDon(req);
+            maHd = res.getMaHoaDon();
+        }
+
+             // ✅ 2. Thêm món
+             String maMon = tblOrder.getValueAt(row, 0).toString();
+             BigDecimal gia = new BigDecimal(tblOrder.getValueAt(row, 2).toString());
+
+             ChiTietMonDTO mon = new ChiTietMonDTO();
+             mon.setMaMon(maMon);
+             mon.setGiaLucBan(gia);
+             mon.setSoLuong(1); // mặc định 1
+
+             ThemMonRequest themReq = new ThemMonRequest();
+             themReq.setMaHd(maHd);
+             themReq.setMonAn(List.of(mon));
+
+             ApiHoaDon.themMonVaoHoaDon(themReq);
+
+             txtmahoadon.setText(maHd); // hiển thị mã hóa đơn
+
+             JOptionPane.showMessageDialog(this, "Thêm món thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+
+             // ✅ 3. Load lại chi tiết hóa đơn
+             HoaDonChiTietDTO dtoMoi = ApiHoaDon.layChiTietHoaDonTheoBan(maBan);
+             updateChiTietHoaDonTable(dtoMoi);
+
+         } catch (Exception e) {
+             e.printStackTrace();
+             JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+         }
+
+      
     }//GEN-LAST:event_btnorderActionPerformed
 
     private void tblOrderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrderMouseClicked
@@ -916,14 +1084,67 @@ public class FormBan extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
      // TODO add your handling code here:
+               String maBan = txtmaban.getText().trim();
+                if (maBan.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy mã bàn để trả.");
+                    return;
+                }
+
+                try {
+                    // Gửi yêu cầu PUT đến API trả bàn
+                    URL url = new URL("http://localhost:1234/api/ban/tra-ban/" + maBan);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("PUT");
+                    conn.setDoOutput(true);
+
+                    int responseCode = conn.getResponseCode();
+                    if (responseCode == 200) {
+                        JOptionPane.showMessageDialog(this, "Bàn đã được trả thành công!");
+                        loadban();
+                        // Có thể làm mới bảng hiển thị danh sách bàn ở đây nếu cần
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Trả bàn thất bại. Mã lỗi: " + responseCode);
+                    }
+
+                    conn.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Lỗi khi trả bàn: " + e.getMessage());
+                }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void btndatbanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndatbanActionPerformed
+        Menuorder.setVisible(false);                                
+        String maBan = txtmaban.getText();
+        if (maBan == null || maBan.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn bàn trước khi đặt.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        try {
+            // Gọi API cập nhật trạng thái bàn sang "Đang sử dụng"
+            boolean thanhCong = ApiBan.capNhatTrangThaiBan(maBan, "Dang su dung");
+            if (thanhCong) {
+                JOptionPane.showMessageDialog(this, "Đặt bàn thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                vuaDatBan = true;
+                Menuorder.setVisible(true);
+                btnorder.setEnabled(true);
+
+                // 🔄 Load lại bàn để cập nhật trạng thái/màu sắc
+                loadban();
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể đặt bàn. Vui lòng thử lại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi kết nối khi đặt bàn.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btndatbanActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-      
+         trogiupban help = new trogiupban();
+            help.setVisible(true);
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jLabelMinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelMinMouseClicked
@@ -976,7 +1197,7 @@ public class FormBan extends javax.swing.JFrame {
         try {
               String[] head = {"Mã món", "Tên món", "Giá", "Hình ảnh"};
             DefaultTableModel tb = new DefaultTableModel(head, 0);
-            List<SanPhamDTO> ds = ApiCaller.timSanPhamGanDung(keyword);
+            List<SanPhamDTO> ds = ApiSanpham.timSanPhamGanDung(keyword);
 
             for (SanPhamDTO sp : ds) {
                 tb.addRow(new Object[]{
@@ -1022,6 +1243,8 @@ public class FormBan extends javax.swing.JFrame {
         // TODO add your handling code here:
        loadsanpham();
        loadban();
+       // 🔒 Vô hiệu hóa nút Order
+            btnorder.setEnabled(false);
                                    
    
     }//GEN-LAST:event_formWindowOpened

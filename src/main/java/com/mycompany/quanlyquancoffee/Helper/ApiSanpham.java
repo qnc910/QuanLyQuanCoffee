@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author ADMIN
  */
-public class ApiCaller {
+public class ApiSanpham {
     
     public static List<SanPhamDTO> layDanhSachSanPham(){
         List<SanPhamDTO> danhSach = new ArrayList<>();
