@@ -4,8 +4,8 @@
  */
 package com.mycompany.quanlyquancoffee.Helper;
 
+import DTO.KhuVucDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -20,8 +20,8 @@ import java.util.List;
  * @author ADMIN
  */
 public class ApiKhuVuc {
-    public static List<KhuVuc> getAllKhuVuc(){
-        List<KhuVuc> dskv = new ArrayList<>();
+    public static List<KhuVucDTO> getAllKhuVuc(){
+        List<KhuVucDTO> dskv = new ArrayList<>();
         
         try {
             URL url  = new URL("http://localhost:1234/api/khuvuc/getall");
@@ -40,7 +40,7 @@ public class ApiKhuVuc {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            dskv = Arrays.asList(mapper.readValue(response.toString(), KhuVuc[].class));
+            dskv = Arrays.asList(mapper.readValue(response.toString(), KhuVucDTO[].class));
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,11 +49,11 @@ public class ApiKhuVuc {
         return dskv;
     }
     
-    public static boolean themKhuVuc(KhuVuc kv){
+    public static boolean themKhuVuc(KhuVucDTO kv){
         return guiYeuCauPOST_PUT(kv, "http://localhost:1234/api/khuvuc/create", "POST");
     }
     
-    public static boolean suaKhuVuc(KhuVuc kv) {
+    public static boolean suaKhuVuc(KhuVucDTO kv) {
         return guiYeuCauPOST_PUT(kv, "http://localhost:1234/api/khuvuc/update/" + kv.getMaKV(), "PUT");
     }
     
@@ -69,7 +69,7 @@ public class ApiKhuVuc {
         }
     }
     
-    private static boolean guiYeuCauPOST_PUT(KhuVuc kv, String urlString, String method) {
+    private static boolean guiYeuCauPOST_PUT(KhuVucDTO kv, String urlString, String method) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -88,8 +88,8 @@ public class ApiKhuVuc {
         }
     }
     
-    public static List<KhuVuc> timKhuVuc(String maKv){
-        List<KhuVuc> danhSach = new ArrayList<>();
+    public static List<KhuVucDTO> timKhuVuc(String maKv){
+        List<KhuVucDTO> danhSach = new ArrayList<>();
         try {
             URL url  = new URL("http://localhost:1234/api/khuvuc/find/" + maKv);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -106,7 +106,7 @@ public class ApiKhuVuc {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            danhSach = Arrays.asList(mapper.readValue(response.toString(), KhuVuc[].class));
+            danhSach = Arrays.asList(mapper.readValue(response.toString(), KhuVucDTO[].class));
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();

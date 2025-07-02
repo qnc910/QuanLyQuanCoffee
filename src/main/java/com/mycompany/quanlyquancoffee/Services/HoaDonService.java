@@ -185,5 +185,154 @@ public class HoaDonService {
     hoaDonRepo.save(hd);
    
 }
+    public void chuyenMonSangBanKhac(String maHdNguon, String maBanDich, ChiTietMonDTO monChuyen) {
+    // Tìm hóa đơn nguồn
+        HoaDon hdNguon = hoaDonRepo.findById(maHdNguon)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn nguồn"));
+
+        // Tìm/khởi tạo hóa đơn đích
+        Optional<HoaDon> hdDichOpt = hoaDonRepo.findHoaDonChuaThanhToanByBan(maBanDich);
+        HoaDon hdDich;
+
+        if (hdDichOpt.isPresent()) {
+            hdDich = hdDichOpt.get();
+        } else {
+            // Tạo hóa đơn mới nếu chưa có
+            String maHdMoi = "HD" + String.format("%04d", new Random().nextInt(10000));
+
+            hdDich = new HoaDon();
+            hdDich.setMaHd(maHdMoi);
+            hdDich.setNgayLap(LocalDate.now());
+            hdDich.setGio(LocalTime.now());
+            hdDich.setTrangThai("Chua thanh toan");
+            hoaDonRepo.save(hdDich);
+
+            // Gán bàn vào hóa đơn mới
+            Ban ban = banRepo.findById(maBanDich).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn"));
+            BanHoaDon bhd = new BanHoaDon();
+            bhd.setBan(ban);
+            bhd.setHoaDon(hdDich);
+            banHoaDonRepo.save(bhd);
+
+            // Cập nhật trạng thái bàn đích
+            ban.setTrangThai("Đã đặt");
+            banRepo.save(ban);
+        }
+
+        // Tìm chi tiết món trong hóa đơn nguồn
+        ChiTietHoaDonId idNguon = new ChiTietHoaDonId(maHdNguon, monChuyen.getMaMon());
+        ChiTietHoaDon ctNguon = chiTietRepo.findById(idNguon)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy món trong hóa đơn nguồn"));
+
+        int soLuongChuyen = monChuyen.getSoLuong();
+        int soLuongHienCo = ctNguon.getSoLuong();
+
+        if (soLuongChuyen <= 0 || soLuongChuyen > soLuongHienCo) {
+            throw new RuntimeException("Số lượng chuyển không hợp lệ");
+        }
+
+        // Cập nhật lại số lượng món ở hóa đơn nguồn
+        if (soLuongChuyen == soLuongHienCo) {
+            chiTietRepo.delete(ctNguon);
+        } else {
+            ctNguon.setSoLuong(soLuongHienCo - soLuongChuyen);
+            chiTietRepo.save(ctNguon);
+        }
+
+        // Thêm/cập nhật món vào hóa đơn đích
+        ChiTietHoaDonId idDich = new ChiTietHoaDonId(hdDich.getMaHd(), monChuyen.getMaMon());
+        ChiTietHoaDon ctDich = chiTietRepo.findById(idDich).orElse(new ChiTietHoaDon());
+
+        ctDich.setHoaDon(hdDich);
+        ctDich.setSanPham(ctNguon.getSanPham());
+        ctDich.setGiaLucBan(monChuyen.getGiaLucBan());
+
+        Integer slCuObj = ctDich.getSoLuong();
+        int soLuongCu = (slCuObj != null) ? slCuObj : 0;
+
+        ctDich.setSoLuong(soLuongCu + soLuongChuyen);
+
+        chiTietRepo.save(ctDich);
+
+        // Xóa hóa đơn nguồn nếu không còn món
+        List<ChiTietHoaDon> conLai = chiTietRepo.findByHoaDon_MaHd(maHdNguon);
+        if (conLai.isEmpty()) {
+            hoaDonRepo.deleteById(maHdNguon);
+
+            List<BanHoaDon> bhdList = banHoaDonRepo.findByHoaDon_MaHd(maHdNguon);
+            for (BanHoaDon bhd : bhdList) {
+                Ban b = bhd.getBan();
+                b.setTrangThai("Trống");
+                banRepo.save(b);
+            }
+
+            banHoaDonRepo.deleteAll(bhdList);
+        }
+    }
+    
+     public void chuyenBanHoanToan(ChuyenbanRequest req) {
+        String maHdCu = req.getMaHdCu();
+        String maBanCu = req.getMaBanCu();
+        String maBanMoi = req.getMaBanMoi();
+        String maNv = req.getMaNv();
+
+        HoaDonChiTietDTO hdCu = layHoaDonHomNayTheoBan(maBanCu);
+
+        Optional<HoaDon> optHdMoi = hoaDonRepo.findHoaDonChuaThanhToanByBan(maBanMoi);
+        HoaDon hdMoi;
+
+        if (optHdMoi.isPresent()) {
+            hdMoi = optHdMoi.get();
+        } else {
+            String maHd = "HD" + String.format("%04d", new Random().nextInt(10000));
+            hdMoi = new HoaDon();
+            hdMoi.setMaHd(maHd);
+            hdMoi.setNgayLap(LocalDate.now());
+            hdMoi.setGio(LocalTime.now());
+            hdMoi.setMaNv(maNv);
+            hdMoi.setTrangThai("Chua thanh toan");
+            hoaDonRepo.save(hdMoi);
+
+            Ban banMoi = banRepo.findById(maBanMoi).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn mới"));
+            BanHoaDon bhd = new BanHoaDon();
+            bhd.setHoaDon(hdMoi);
+            bhd.setBan(banMoi);
+            banHoaDonRepo.save(bhd);
+
+            banMoi.setTrangThai("Đã đặt");
+            banRepo.save(banMoi);
+        }
+
+        for (ChiTietMonDTO mon : hdCu.getMonAn()) {
+            ChiTietHoaDonId id = new ChiTietHoaDonId(hdMoi.getMaHd(), mon.getMaMon());
+            ChiTietHoaDon ct = chiTietRepo.findById(id).orElse(new ChiTietHoaDon());
+
+            SanPham sp = sanPhamRepo.findById(mon.getMaMon()).orElseThrow();
+
+            ct.setHoaDon(hdMoi);
+            ct.setSanPham(sp);
+            ct.setGiaLucBan(mon.getGiaLucBan());
+            ct.setSoLuong(mon.getSoLuong());
+            chiTietRepo.save(ct);
+        }
+
+        for (ChiTietMonDTO mon : hdCu.getMonAn()) {
+            CapNhatSoLuongDTO capNhat = new CapNhatSoLuongDTO();
+            capNhat.setMaHd(maHdCu);
+            capNhat.setMaMon(mon.getMaMon());
+            capNhat.setSoLuongMoi(0);
+            capNhatSoLuong(capNhat);
+        }
+
+        List<BanHoaDon> bans = banHoaDonRepo.findByHoaDon_MaHd(maHdCu);
+        for (BanHoaDon bhd : bans) {
+            Ban b = bhd.getBan();
+            b.setTrangThai("Trống");
+            banRepo.save(b);
+        }
+
+        banHoaDonRepo.deleteAll(bans);
+        hoaDonRepo.deleteById(maHdCu);
+    }
 
 }

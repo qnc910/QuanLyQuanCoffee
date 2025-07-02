@@ -330,6 +330,9 @@ void close(){
 
         JOptionPane.showMessageDialog(this, "Cập nhật thành công");
         dispose(); // đóng form
+         FormBan banForm = new FormBan();
+         banForm.setVisible(true);
+        
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
         e.printStackTrace();

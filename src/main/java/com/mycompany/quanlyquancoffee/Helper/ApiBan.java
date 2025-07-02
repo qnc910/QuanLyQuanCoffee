@@ -5,9 +5,8 @@
 package com.mycompany.quanlyquancoffee.Helper;
 
 import DTO.BanDTO;
+import DTO.KhuVucDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.quanlyquancoffee.Models.Ban;
-import com.mycompany.quanlyquancoffee.Models.KhuVuc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,8 +24,8 @@ import org.json.JSONObject;
  * @author HELLO
  */
 public class ApiBan {
-     public static List<KhuVuc> layDanhSachKhuVuc() {
-        List<KhuVuc> danhSach = new ArrayList<>();
+     public static List<KhuVucDTO> layDanhSachKhuVuc() {
+        List<KhuVucDTO> danhSach = new ArrayList<>();
         try {
             URL url = new URL("http://localhost:1234/api/khuvuc/getall");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -43,7 +42,7 @@ public class ApiBan {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            danhSach = Arrays.asList(mapper.readValue(response.toString(), KhuVuc[].class));
+            danhSach = Arrays.asList(mapper.readValue(response.toString(), KhuVucDTO[].class));
             
             conn.disconnect();
         } catch (Exception e) {
@@ -113,11 +112,11 @@ public class ApiBan {
         return dsBan;
     }
     
-    public static boolean themBan(Ban kv){
+    public static boolean themBan(BanDTO kv){
         return guiYeuCauPOST_PUT(kv, "http://localhost:1234/api/ban/create", "POST");
     }
     
-    public static boolean suaBan(Ban kv) {
+    public static boolean suaBan(BanDTO kv) {
         return guiYeuCauPOST_PUT(kv, "http://localhost:1234/api/ban/update/" + kv.getMaBan(), "PUT");
     }
     
@@ -133,7 +132,7 @@ public class ApiBan {
         }
     }
     
-    private static boolean guiYeuCauPOST_PUT(Ban kv, String urlString, String method) {
+    private static boolean guiYeuCauPOST_PUT(BanDTO kv, String urlString, String method) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -152,8 +151,8 @@ public class ApiBan {
         }
     }
     
-    public static List<Ban> timBan(String maBan){
-        List<Ban> danhSach = new ArrayList<>();
+    public static List<BanDTO> timBan(String maBan){
+        List<BanDTO> danhSach = new ArrayList<>();
         try {
             URL url  = new URL("http://localhost:1234/api/ban/find/" + maBan);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -170,7 +169,7 @@ public class ApiBan {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            danhSach = Arrays.asList(mapper.readValue(response.toString(), Ban[].class));
+            danhSach = Arrays.asList(mapper.readValue(response.toString(), BanDTO[].class));
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();

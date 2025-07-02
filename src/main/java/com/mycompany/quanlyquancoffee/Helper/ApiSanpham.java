@@ -6,7 +6,6 @@ package com.mycompany.quanlyquancoffee.Helper;
 
 import DTO.SanPhamDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.quanlyquancoffee.Models.SanPham;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -53,11 +52,11 @@ public class ApiSanpham {
         return danhSach;
     }
     
-    public static boolean themSanPham(SanPham sp){
+    public static boolean themSanPham(SanPhamDTO sp){
         return guiYeuCauPOST_PUT(sp, "http://localhost:1234/api/sanpham/create", "POST");
     }
     
-    public static boolean suaSanPham(SanPham sp) {
+    public static boolean suaSanPham(SanPhamDTO sp) {
         return guiYeuCauPOST_PUT(sp, "http://localhost:1234/api/sanpham/update/" + sp.getMaMon(), "PUT");
     }
     
@@ -73,8 +72,8 @@ public class ApiSanpham {
         }
     }
     
-    public static List<SanPham> timSanPham(String maMon){
-        List<SanPham> danhSach = new ArrayList<>();
+    public static List<SanPhamDTO> timSanPham(String maMon){
+        List<SanPhamDTO> danhSach = new ArrayList<>();
         try {
             URL url  = new URL("http://localhost:1234/api/sanpham/find/" + maMon);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -91,7 +90,7 @@ public class ApiSanpham {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            danhSach = Arrays.asList(mapper.readValue(response.toString(), SanPham[].class));
+            danhSach = Arrays.asList(mapper.readValue(response.toString(), SanPhamDTO[].class));
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,7 +99,7 @@ public class ApiSanpham {
         return danhSach;
     }
     
-    private static boolean guiYeuCauPOST_PUT(SanPham sp, String urlString, String method) {
+    private static boolean guiYeuCauPOST_PUT(SanPhamDTO sp, String urlString, String method) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

@@ -2,6 +2,7 @@ package com.mycompany.quanlyquancoffee.Controllers;
 
 import DTO.*;
 import com.mycompany.quanlyquancoffee.Services.HoaDonService;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -77,20 +78,42 @@ public class OrderController {
     }
     
     // 6️⃣ Thanh toán hóa đơn
-@PutMapping("/thanh-toan/{maHd}")
-public ResponseEntity<?> thanhToanHoaDon(@PathVariable String maHd) {
-    try {
-        hoaDonService.thanhToanHoaDon(maHd);
+    @PutMapping("/thanh-toan/{maHd}")
+    public ResponseEntity<?> thanhToanHoaDon(@PathVariable String maHd) {
+        try {
+            hoaDonService.thanhToanHoaDon(maHd);
 
-        // ✅ Trả về JSON với key "message"
-        Map<String, String> res = new HashMap<>();
-        res.put("message", "Thanh toán thành công");
-        return ResponseEntity.ok(res);
-    } catch (RuntimeException e) {
-        // ❌ Trả về lỗi cũng theo định dạng JSON
-        Map<String, String> err = new HashMap<>();
-        err.put("error", e.getMessage());
-        return ResponseEntity.badRequest().body(err);
+            // ✅ Trả về JSON với key "message"
+            Map<String, String> res = new HashMap<>();
+            res.put("message", "Thanh toán thành công");
+            return ResponseEntity.ok(res);
+        } catch (RuntimeException e) {
+            // ❌ Trả về lỗi cũng theo định dạng JSON
+            Map<String, String> err = new HashMap<>();
+            err.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(err);
+        }
     }
-}
+
+  @PostMapping("/chuyen-mon")
+    public ResponseEntity<?> chuyenMon(@RequestBody ChuyenMonRequest request) {
+        try {
+            hoaDonService.chuyenMonSangBanKhac(
+                request.getMaHdNguon(),
+                request.getMaBanDich(),
+                request.getMonChuyen()
+            );
+            return ResponseEntity.ok("Chuyển món thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
+    
+    @PostMapping("/chuyen-ban")
+    public ResponseEntity<?> chuyenBan(@RequestBody ChuyenbanRequest req) {
+        hoaDonService.chuyenBanHoanToan(req);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Chuyển bàn thành công"));
+    }
+
+
 }

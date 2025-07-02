@@ -222,5 +222,62 @@ public static void capNhatSoLuong(CapNhatSoLuongDTO req) throws IOException {
     }
 }
 
+// 6️⃣ Chuyển món giữa 2 bàn
+    public static void chuyenMonSangBanKhac(String maHdNguon, String maBanDich, ChiTietMonDTO monChuyen) throws IOException {
+        URL url = new URL("http://localhost:1234/api/order/chuyen-mon");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        JSONObject body = new JSONObject();
+        body.put("maHdNguon", maHdNguon);
+        body.put("maBanDich", maBanDich);
+
+        JSONObject monObj = new JSONObject();
+        monObj.put("maMon", monChuyen.getMaMon());
+        monObj.put("tenMon", monChuyen.getTenMon()); // có thể không cần, backend không dùng cũng được
+        monObj.put("soLuong", monChuyen.getSoLuong());
+        monObj.put("giaLucBan", monChuyen.getGiaLucBan());
+
+        body.put("monChuyen", monObj);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+            os.write(input);
+        }
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode != 200) {
+            throw new IOException("Chuyển món thất bại. Mã hóa đơn: " + maHdNguon);
+        }
+    }
+
+    // 7️⃣ Chuyển bàn hoàn toàn
+public static void chuyenBanHoanToan(String maHdCu, String maBanCu, String maBanMoi, String maNv) throws IOException {
+    URL url = new URL(BASE_URL + "/chuyen-ban");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("POST");
+    conn.setRequestProperty("Content-Type", "application/json");
+    conn.setDoOutput(true);
+
+    JSONObject body = new JSONObject();
+    body.put("maHdCu", maHdCu);
+    body.put("maBanCu", maBanCu);
+    body.put("maBanMoi", maBanMoi);
+    body.put("maNv", maNv); // nhân viên thực hiện
+
+    try (OutputStream os = conn.getOutputStream()) {
+        byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+        os.write(input);
+    }
+
+    int responseCode = conn.getResponseCode();
+    if (responseCode != 200) {
+        throw new IOException("Chuyển bàn thất bại. Mã hóa đơn: " + maHdCu);
+    }
+}
+
+    
     
 }

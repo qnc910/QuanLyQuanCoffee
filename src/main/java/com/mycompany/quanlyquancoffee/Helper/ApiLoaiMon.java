@@ -4,8 +4,8 @@
  */
 package com.mycompany.quanlyquancoffee.Helper;
 
+import DTO.LoaiMonDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.quanlyquancoffee.Models.LoaiMon;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -20,8 +20,8 @@ import java.util.List;
  * @author ADMIN
  */
 public class ApiLoaiMon {
-    public static List<LoaiMon> layDanhSachLoaiMon(){
-        List<LoaiMon> danhSach = new ArrayList<>();
+    public static List<LoaiMonDTO> layDanhSachLoaiMon(){
+        List<LoaiMonDTO> danhSach = new ArrayList<>();
         
         try {
             URL url  = new URL("http://localhost:1234/api/loaimon/getall");
@@ -40,7 +40,7 @@ public class ApiLoaiMon {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            danhSach = Arrays.asList(mapper.readValue(response.toString(), LoaiMon[].class));
+            danhSach = Arrays.asList(mapper.readValue(response.toString(), LoaiMonDTO[].class));
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,8 +49,8 @@ public class ApiLoaiMon {
         return danhSach;
     }
     
-    public static List<LoaiMon> timLoaiMon(String maLoai){
-        List<LoaiMon> danhSach = new ArrayList<>();
+    public static List<LoaiMonDTO> timLoaiMon(String maLoai){
+        List<LoaiMonDTO> danhSach = new ArrayList<>();
         try {
             URL url  = new URL("http://localhost:1234/api/loaimon/find/" + maLoai);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -67,7 +67,7 @@ public class ApiLoaiMon {
             reader.close();
             
             ObjectMapper mapper = new ObjectMapper();
-            danhSach = Arrays.asList(mapper.readValue(response.toString(), LoaiMon.class));
+            danhSach = Arrays.asList(mapper.readValue(response.toString(), LoaiMonDTO.class));
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,11 +75,11 @@ public class ApiLoaiMon {
         return danhSach;
     }
     
-    public static boolean themLoaiMon(LoaiMon sp){
+    public static boolean themLoaiMon(LoaiMonDTO sp){
         return guiYeuCauPOST_PUT(sp, "http://localhost:1234/api/loaimon/create", "POST");
     }
     
-    public static boolean suaLoaiMon(LoaiMon sp) {
+    public static boolean suaLoaiMon(LoaiMonDTO sp) {
         return guiYeuCauPOST_PUT(sp, "http://localhost:1234/api/loaimon/update/" + sp.getMaLoai(), "PUT");
     }
     
@@ -95,7 +95,7 @@ public class ApiLoaiMon {
         }
     }
     
-    private static boolean guiYeuCauPOST_PUT(LoaiMon lm, String urlString, String method) {
+    private static boolean guiYeuCauPOST_PUT(LoaiMonDTO lm, String urlString, String method) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

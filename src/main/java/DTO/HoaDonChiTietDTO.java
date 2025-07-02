@@ -17,6 +17,7 @@ public class HoaDonChiTietDTO {
     private String maBan;
     private String ngayLap;
     private String gio;
+
     
     public List<ChiTietMonDTO> getMonAn() {
     if (monAn == null) {
@@ -26,6 +27,7 @@ public class HoaDonChiTietDTO {
 }
 
 
+    
     public String getMaHd() {
         return maHd;
     }

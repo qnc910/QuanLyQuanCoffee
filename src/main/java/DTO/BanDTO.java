@@ -4,7 +4,7 @@
  */
 package DTO;
 
-import com.mycompany.quanlyquancoffee.Models.Ban;
+
 
 /**
  *
@@ -20,13 +20,16 @@ public class BanDTO {
     public BanDTO() {
     }
 
-    public BanDTO(Ban ban){
-        this.maBan = ban.getMaBan();
-        this.tenBan = ban.getTenBan();
-        this.maKV = ban.getMaKV();
-        this.tenKV = ban.getTenKV();
-        this.trangThai = ban.getTrangThai();
+   
+    
+       public BanDTO(String maBan, String tenBan, String maKhuVuc, String trangThai) {
+        this.maBan = maBan;
+        this.tenBan = tenBan;
+        this.maKV = maKhuVuc;
+        this.trangThai = trangThai;
     }
+
+    
 
     public String getMaBan() {
         return maBan;

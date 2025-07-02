@@ -1,6 +1,7 @@
 package com.mycompany.quanlyquancoffee.Views;
 
 import DTO.BanDTO;
+import DTO.KhuVucDTO;
 import com.mycompany.quanlyquancoffee.Helper.ApiBan;
 import com.mycompany.quanlyquancoffee.Helper.ApiKhuVuc;
 import com.mycompany.quanlyquancoffee.Helper.ImageRenderer;
@@ -52,9 +53,9 @@ public class quanlytable extends javax.swing.JFrame {
         listkhuvuc.removeAll();
         DefaultListModel<String> model = new DefaultListModel<>();
         
-        List<KhuVuc> ds = ApiKhuVuc.getAllKhuVuc();
+        List<KhuVucDTO> ds = ApiKhuVuc.getAllKhuVuc();
         
-        for(KhuVuc lm : ds){
+        for(KhuVucDTO lm : ds){
                 model.addElement(lm.toString());
             }
         
@@ -700,7 +701,7 @@ public class quanlytable extends javax.swing.JFrame {
     }
     
     private boolean CheckTrungMaKV(String maKV){
-        List<KhuVuc> dskv = new ArrayList<>();
+        List<KhuVucDTO> dskv = new ArrayList<>();
         dskv = ApiKhuVuc.timKhuVuc(maKV);
         return dskv.isEmpty();
     }
@@ -717,7 +718,7 @@ public class quanlytable extends javax.swing.JFrame {
             return;
         }
         
-        KhuVuc kv = new KhuVuc(maKV, tenKv);
+        KhuVucDTO kv = new KhuVucDTO(maKV, tenKv);
         if (ApiKhuVuc.themKhuVuc(kv)) {
             JOptionPane.showMessageDialog(null, "Thêm thành công!");
             LoadKhuVuc();
@@ -738,7 +739,7 @@ public class quanlytable extends javax.swing.JFrame {
             return;
         }
         
-        KhuVuc kv = new KhuVuc(maKV, tenKv);
+        KhuVucDTO kv = new KhuVucDTO(maKV, tenKv);
         if (ApiKhuVuc.suaKhuVuc(kv)) {
             JOptionPane.showMessageDialog(null, "Sửa thành công!");
             LoadKhuVuc();
@@ -817,7 +818,7 @@ public class quanlytable extends javax.swing.JFrame {
     }
     
     private boolean CheckTrungMaBan(String maBan){
-        List<Ban> dssp = new ArrayList<>();
+        List<BanDTO> dssp = new ArrayList<>();
         dssp = ApiBan.timBan(maBan);
         return dssp.isEmpty();
     }
@@ -835,7 +836,7 @@ public class quanlytable extends javax.swing.JFrame {
             return;
         }
         
-        Ban ban = new Ban(maBan, tenBan, khuVUc,"");
+        BanDTO ban = new BanDTO(maBan, tenBan, khuVUc,"");
         if (ApiBan.themBan(ban)) {
             JOptionPane.showMessageDialog(null, "Thêm thành công!");
             LoadBan();
@@ -857,7 +858,7 @@ public class quanlytable extends javax.swing.JFrame {
             return;
         }
         
-        Ban ban = new Ban(maBan, tenBan, khuVUc,"");
+        BanDTO ban = new BanDTO(maBan, tenBan, khuVUc,"");
         if (ApiBan.themBan(ban)) {
             JOptionPane.showMessageDialog(null, "Sửa thành công!");
             LoadBan();

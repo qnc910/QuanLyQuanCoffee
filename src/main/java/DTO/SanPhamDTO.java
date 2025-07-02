@@ -33,6 +33,14 @@ public class SanPhamDTO {
         this.hinhAnh = sp.getHinhAnh();
     }
 
+    public SanPhamDTO(String maMon, String tenMon, long gia, String maLoai, String hinhAnh) {
+    this.maMon = maMon;
+    this.tenMon = tenMon;
+    this.gia = gia;
+    this.maLoai = maLoai;
+    this.hinhAnh = hinhAnh;
+}
+
     public String getMaLoai() {
         return maLoai;
     }

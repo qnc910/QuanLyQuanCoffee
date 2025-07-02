@@ -1,12 +1,12 @@
 package com.mycompany.quanlyquancoffee.Views;
 
+import DTO.LoaiMonDTO;
 import DTO.SanPhamDTO;
 import com.mycompany.quanlyquancoffee.Helper.ApiSanpham;
 import com.mycompany.quanlyquancoffee.Helper.ApiLoaiMon;
 import com.mycompany.quanlyquancoffee.Helper.ImageRenderer;
 import com.mycompany.quanlyquancoffee.Helper.UserSession;
-import com.mycompany.quanlyquancoffee.Models.LoaiMon;
-import com.mycompany.quanlyquancoffee.Models.SanPham;
+
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
@@ -64,9 +64,9 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         listmon.removeAll();
         DefaultListModel<String> model = new DefaultListModel<>();
         
-        List<LoaiMon> ds = ApiLoaiMon.layDanhSachLoaiMon();
+        List<LoaiMonDTO> ds = ApiLoaiMon.layDanhSachLoaiMon();
         
-        for(LoaiMon lm : ds){
+        for(LoaiMonDTO lm : ds){
                 model.addElement(lm.toString());
             }
         
@@ -660,7 +660,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_label_MinimizeMouseClicked
 
     private boolean CheckTrungMa(String maMon){
-        List<SanPham> dssp = new ArrayList<>();
+        List<SanPhamDTO> dssp = new ArrayList<>();
         dssp = ApiSanpham.timSanPham(maMon);
         return dssp.isEmpty();
     }
@@ -737,7 +737,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
             System.out.println("Giá trị không hợp lệ!");
         }
 
-        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
+        SanPhamDTO sp = new SanPhamDTO(maMon, tenMon, donGia, maLoai, hinhanh);
         if (ApiSanpham.suaSanPham(sp)) {
             JOptionPane.showMessageDialog(null, "Sửa thành công!");
             LoadSanPham();
@@ -792,7 +792,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
             System.out.println("Giá trị không hợp lệ!");
         }
 
-        SanPham sp = new SanPham(maMon, tenMon, donGia, maLoai, hinhanh);
+        SanPhamDTO sp = new SanPhamDTO(maMon, tenMon, donGia, maLoai, hinhanh);
         if (ApiSanpham.themSanPham(sp)) {
             JOptionPane.showMessageDialog(null, "Thêm thành công!");
             LoadSanPham();
@@ -854,7 +854,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
         if(CheckEmpty(maLM, tenLm)) return;
 
-        LoaiMon lm = new LoaiMon(maLM, tenLm);
+        LoaiMonDTO lm = new LoaiMonDTO(maLM, tenLm);
         if (ApiLoaiMon.suaLoaiMon(lm)) {
             JOptionPane.showMessageDialog(null, "Sửa thành công!");
             LoadDanhSachMon();
@@ -879,7 +879,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     }
     
     private boolean CheckTrungMaLoai(String maLoai){
-        List<LoaiMon> dssp = new ArrayList<>();
+        List<LoaiMonDTO> dssp = new ArrayList<>();
         dssp = ApiLoaiMon.timLoaiMon(maLoai);
         return dssp.isEmpty();
     }
@@ -896,7 +896,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
             return;
         }
 
-        LoaiMon lm = new LoaiMon(maLM, tenLm);
+        LoaiMonDTO lm = new LoaiMonDTO(maLM, tenLm);
         if (ApiLoaiMon.themLoaiMon(lm)) {
             JOptionPane.showMessageDialog(null, "Thêm thành công!");
             LoadDanhSachMon();
