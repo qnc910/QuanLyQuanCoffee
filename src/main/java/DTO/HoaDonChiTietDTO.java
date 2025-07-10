@@ -19,12 +19,13 @@ public class HoaDonChiTietDTO {
     private String gio;
     
     public List<ChiTietMonDTO> getMonAn() {
-    if (monAn == null) {
-        monAn = new ArrayList<>();
+        if (monAn == null) {
+            monAn = new ArrayList<>();
+        }
+        return monAn;
     }
-    return monAn;
-}
 
+    
 
     public String getMaHd() {
         return maHd;

@@ -20,12 +20,4 @@ public class ChiTietHoaDonId implements Serializable {
     private String hoaDon;
     private String sanPham;
 
-    // 🔧 Constructor mặc định bắt buộc phải có
-    public ChiTietHoaDonId() {
-    }
-
-    public ChiTietHoaDonId(String hoaDon, String sanPham) {
-        this.hoaDon = hoaDon;
-        this.sanPham = sanPham;
-    }
 }

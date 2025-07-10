@@ -1,5 +1,8 @@
 package com.mycompany.quanlyquancoffee.repository;
 
+import DTO.ChiTietMonDTO;
+import DTO.HoaDonChiTietDTO;
+import DTO.HoaDonDTO;
 import com.mycompany.quanlyquancoffee.Models.HoaDon;
 import java.time.LocalDate;
 import java.util.List;
@@ -56,4 +59,47 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, String> {
 
     // 🔹 5. Hóa đơn theo trạng thái (nếu cần lọc toàn bộ)
     List<HoaDon> findByTrangThai(String trangThai);
+    
+    // Tìm hóa đơn có ngày lập là hôm nay
+    @Query("""
+        SELECT new DTO.HoaDonDTO(
+            h.maHd, h.maNv, nv.hoTen, h.ngayLap, h.trangThai,
+            SUM(CAST(cthd.soLuong AS BigDecimal) * cthd.giaLucBan)
+        )
+        FROM HoaDon h
+        JOIN NhanVien nv ON h.maNv = nv.maNV
+        JOIN ChiTietHoaDon cthd ON h.maHd = cthd.hoaDon.maHd
+        WHERE h.ngayLap = CURRENT_DATE
+        GROUP BY h.maHd, h.maNv, nv.hoTen, h.ngayLap, h.trangThai
+    """)
+    List<HoaDonDTO> findHoaDonHomNay();
+    
+    //Tìm hóa đơn theo mã
+    @Query("""
+        SELECT new DTO.ChiTietMonDTO(
+            sp.maMon,
+            sp.tenMon,
+            cthd.soLuong,
+            cthd.giaLucBan,
+            cthd.giaLucBan * cthd.soLuong
+        )
+        FROM ChiTietHoaDon cthd
+        JOIN cthd.sanPham sp
+        WHERE cthd.hoaDon.maHd = :maHd
+    """)
+    List<ChiTietMonDTO> findChiTietMonByMaHd(@Param("maHd") String maHd);
+    
+    @Query("""
+        SELECT new DTO.HoaDonDTO(
+            h.maHd, h.maNv, nv.hoTen, h.ngayLap, h.trangThai,
+            SUM(CAST(cthd.soLuong AS BigDecimal) * cthd.giaLucBan)
+        )
+        FROM HoaDon h
+        JOIN NhanVien nv ON h.maNv = nv.maNV
+        JOIN ChiTietHoaDon cthd ON h.maHd = cthd.hoaDon.maHd
+        WHERE h.ngayLap BETWEEN :startDate AND :endDate
+        GROUP BY h.maHd, h.maNv, nv.hoTen, h.ngayLap, h.trangThai
+        ORDER BY h.ngayLap ASC
+    """)
+    List<HoaDonDTO> findHoaDonTheoKhoangThoiGian(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

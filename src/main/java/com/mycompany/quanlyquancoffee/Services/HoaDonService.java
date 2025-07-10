@@ -185,5 +185,7 @@ public class HoaDonService {
     hoaDonRepo.save(hd);
    
 }
-
+    public List<ChiTietHoaDon> timTheoMaHD(String maHD){
+        return chiTietRepo.findByHoaDon_MaHd(maHD);
+    }
 }

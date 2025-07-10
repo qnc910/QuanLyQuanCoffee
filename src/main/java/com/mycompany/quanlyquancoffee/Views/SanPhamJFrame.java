@@ -1,5 +1,6 @@
 package com.mycompany.quanlyquancoffee.Views;
 
+import DTO.LoaiMonDTO;
 import DTO.SanPhamDTO;
 import com.mycompany.quanlyquancoffee.Helper.ApiSanpham;
 import com.mycompany.quanlyquancoffee.Helper.ApiLoaiMon;
@@ -64,9 +65,9 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         listmon.removeAll();
         DefaultListModel<String> model = new DefaultListModel<>();
         
-        List<LoaiMon> ds = ApiLoaiMon.layDanhSachLoaiMon();
+        List<LoaiMonDTO> ds = ApiLoaiMon.layDanhSachLoaiMon();
         
-        for(LoaiMon lm : ds){
+        for(LoaiMonDTO lm : ds){
                 model.addElement(lm.toString());
             }
         
@@ -79,6 +80,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     
     Map<String, String> danhMucMap = new HashMap<>();
     private void LoadDanhMuc(){
+        cbo_DanhMuc.removeAllItems();
         try {
             Connection con = Connect.ConnectDB.KetnoiDB();
             String sql = "Select * From loai_mon";
@@ -262,6 +264,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         listmon.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         listmon.setForeground(java.awt.Color.white);
         listmon.setLayoutOrientation(javax.swing.JList.VERTICAL_WRAP);
+        listmon.setVisibleRowCount(20);
         listmon.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 listmonMouseClicked(evt);
@@ -336,8 +339,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(lblguita, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -725,11 +727,6 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
         if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
 
-        if(CheckTrungMa(maMon)){
-            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
-            return;
-        }
-
         long donGia = 0;
         try {
             donGia = Long.parseLong(giaText);
@@ -842,6 +839,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         if (ApiLoaiMon.xoaLoaiMon(maLoai)) {
             JOptionPane.showMessageDialog(null, "Xóa thành công!");
             LoadDanhSachMon();
+            LoadDanhMuc();
         }else{
             JOptionPane.showMessageDialog(null, "Xóa thất bại!");
         }
@@ -854,11 +852,12 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
         if(CheckEmpty(maLM, tenLm)) return;
 
-        LoaiMon lm = new LoaiMon(maLM, tenLm);
+        LoaiMonDTO lm = new LoaiMonDTO(new LoaiMon(maLM, tenLm));
         if (ApiLoaiMon.suaLoaiMon(lm)) {
             JOptionPane.showMessageDialog(null, "Sửa thành công!");
             LoadDanhSachMon();
             LoadSanPham();
+            LoadDanhMuc();
         }else{
             JOptionPane.showMessageDialog(null, "Sửa thất bại!");
         }
@@ -879,7 +878,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     }
     
     private boolean CheckTrungMaLoai(String maLoai){
-        List<LoaiMon> dssp = new ArrayList<>();
+        List<LoaiMonDTO> dssp = new ArrayList<>();
         dssp = ApiLoaiMon.timLoaiMon(maLoai);
         return dssp.isEmpty();
     }
@@ -891,15 +890,16 @@ public class SanPhamJFrame extends javax.swing.JFrame {
 
         if(CheckEmpty(maLM, tenLm)) return;
 
-        if(!CheckTrungMaLoai(maLM)){
+        if(CheckTrungMaLoai(maLM)){
             JOptionPane.showMessageDialog(this, "Mã loại đã tồn tại!");
             return;
         }
 
-        LoaiMon lm = new LoaiMon(maLM, tenLm);
+        LoaiMonDTO lm = new LoaiMonDTO(new LoaiMon(maLM, tenLm));
         if (ApiLoaiMon.themLoaiMon(lm)) {
             JOptionPane.showMessageDialog(null, "Thêm thành công!");
             LoadDanhSachMon();
+            LoadDanhMuc();
         }else{
             JOptionPane.showMessageDialog(null, "Thêm thất bại!");
         }

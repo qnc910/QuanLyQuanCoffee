@@ -704,7 +704,9 @@ public class MainJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_lblKhoHangMouseClicked
 
     private void lblThongKeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThongKeMouseClicked
-        
+        thongke tk = new thongke();
+        tk.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_lblThongKeMouseClicked
 
     private void lblThongTinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThongTinMouseClicked

@@ -17,10 +17,6 @@ public class OrderController {
 
     private final HoaDonService hoaDonService; // ✔ đã inject bằng final và Lombok
 
-    public OrderController(HoaDonService hoaDonService) {
-    this.hoaDonService = hoaDonService;
-}
-
     // 1️⃣ Tạo hóa đơn
     @PostMapping("/tao")
     public ResponseEntity<?> taoHoaDon(@RequestBody TaoHoaDonRequest req) {

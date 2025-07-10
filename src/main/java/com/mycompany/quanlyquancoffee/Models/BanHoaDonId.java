@@ -14,8 +14,5 @@ import java.io.Serializable;
 public class BanHoaDonId implements Serializable {
     private String hoaDon;
     private String ban;
-
-    public BanHoaDonId() {
-    }
 }
 

@@ -4,11 +4,14 @@
  */
 
 package com.mycompany.quanlyquancoffee.Controllers;
+import DTO.LoaiMonDTO;
+import Mapper.LoaiMonMapper;
 import com.mycompany.quanlyquancoffee.Models.LoaiMon;
 import com.mycompany.quanlyquancoffee.repository.LoaiMonRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,11 +25,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/loaimon")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class LoaiMonController {
     
     
     @Autowired
     private LoaiMonRepository loaiMonRepository;
+    
+    private LoaiMonMapper loaiMonMapper;
     
     @GetMapping("/getall")
     public List<LoaiMon> getAll() {
@@ -47,7 +53,7 @@ public class LoaiMonController {
         return ResponseEntity.ok(saved);
     }
     
-    @PutMapping("/update/{maMon}")
+    @PutMapping("/update/{maLoai}")
     public ResponseEntity<LoaiMon> update(@PathVariable String maLoai, @RequestBody LoaiMon lm){
         Optional<LoaiMon> lmOpt = loaiMonRepository.findById(maLoai);
         return loaiMonRepository.findById(maLoai)
@@ -59,7 +65,7 @@ public class LoaiMonController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @DeleteMapping("/delete/{maMon}")
+    @DeleteMapping("/delete/{ma}")
     public ResponseEntity<Void> delete(@PathVariable String ma) {
         if (!loaiMonRepository.existsById(ma)) {
             return ResponseEntity.notFound().build();
