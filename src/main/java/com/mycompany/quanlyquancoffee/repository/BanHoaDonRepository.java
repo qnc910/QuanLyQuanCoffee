@@ -8,6 +8,7 @@ import com.mycompany.quanlyquancoffee.Models.BanHoaDon;
 import com.mycompany.quanlyquancoffee.Models.BanHoaDonId;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,5 +26,10 @@ public interface BanHoaDonRepository extends JpaRepository<BanHoaDon, BanHoaDonI
     // Tìm hóa đơn đang chiếm dụng bàn
     @Query("SELECT bhd FROM BanHoaDon bhd WHERE bhd.ban.maBan = :maBan AND bhd.hoaDon.trangThai = 'Chua thanh toan'")
     List<BanHoaDon> findHoaDonChuaThanhToanByBan(@Param("maBan") String maBan);
+    
+    @Modifying
+    @Query("DELETE FROM BanHoaDon bhd WHERE bhd.hoaDon.maHd = :maHd AND bhd.ban.maBan = :maBan")
+    void deleteByHoaDonAndBan(@Param("maHd") String maHd, @Param("maBan") String maBan);
+
 }
 

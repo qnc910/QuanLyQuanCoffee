@@ -3,6 +3,7 @@ package com.mycompany.quanlyquancoffee.Services;
 import DTO.*;
 import com.mycompany.quanlyquancoffee.Models.*;
 import com.mycompany.quanlyquancoffee.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -270,44 +271,54 @@ public class HoaDonService {
         }
     }
     
-     public void chuyenBanHoanToan(ChuyenbanRequest req) {
-        String maHdCu = req.getMaHdCu();
-        String maBanCu = req.getMaBanCu();
-        String maBanMoi = req.getMaBanMoi();
-        String maNv = req.getMaNv();
+@Transactional
+public void chuyenBanHoanToan(ChuyenbanRequest req) {
+    String maHdCu = req.getMaHdCu();
+    String maBanCu = req.getMaBanCu();
+    String maBanMoi = req.getMaBanMoi();
+    String maNv = req.getMaNv();
 
-        HoaDonChiTietDTO hdCu = layHoaDonHomNayTheoBan(maBanCu);
+    // 1. Lấy hóa đơn cũ
+    HoaDonChiTietDTO hdCu = layHoaDonHomNayTheoBan(maBanCu);
 
-        Optional<HoaDon> optHdMoi = hoaDonRepo.findHoaDonChuaThanhToanByBan(maBanMoi);
-        HoaDon hdMoi;
+    // 2. Kiểm tra bàn mới đã có hóa đơn chưa
+    Optional<HoaDon> optHdMoi = hoaDonRepo.findHoaDonChuaThanhToanByBan(maBanMoi);
+    HoaDon hdMoi;
 
-        if (optHdMoi.isPresent()) {
-            hdMoi = optHdMoi.get();
-        } else {
-            String maHd = "HD" + String.format("%04d", new Random().nextInt(10000));
-            hdMoi = new HoaDon();
-            hdMoi.setMaHd(maHd);
-            hdMoi.setNgayLap(LocalDate.now());
-            hdMoi.setGio(LocalTime.now());
-            hdMoi.setMaNv(maNv);
-            hdMoi.setTrangThai("Chua thanh toan");
-            hoaDonRepo.save(hdMoi);
+    if (optHdMoi.isPresent()) {
+        hdMoi = optHdMoi.get();
+    } else {
+        // 2a. Nếu chưa có hóa đơn => tạo mới
+        String maHd = "HD" + String.format("%04d", new Random().nextInt(10000));
+        hdMoi = new HoaDon();
+        hdMoi.setMaHd(maHd);
+        hdMoi.setNgayLap(LocalDate.now());
+        hdMoi.setGio(LocalTime.now());
+        hdMoi.setMaNv(maNv);
+        hdMoi.setTrangThai("Chua thanh toan");
+        hoaDonRepo.save(hdMoi);
 
-            Ban banMoi = banRepo.findById(maBanMoi).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn mới"));
-            BanHoaDon bhd = new BanHoaDon();
-            bhd.setHoaDon(hdMoi);
-            bhd.setBan(banMoi);
-            banHoaDonRepo.save(bhd);
+        // Gán bàn mới vào hóa đơn mới
+        Ban banMoi = banRepo.findById(maBanMoi)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn mới"));
+        BanHoaDon bhd = new BanHoaDon();
+        bhd.setHoaDon(hdMoi);
+        bhd.setBan(banMoi);
+        banHoaDonRepo.save(bhd);
 
-            banMoi.setTrangThai("Đã đặt");
-            banRepo.save(banMoi);
-        }
+        // Cập nhật trạng thái bàn mới
+        banMoi.setTrangThai("Có khách");
+        banRepo.save(banMoi);
+    }
 
+    // 3. Nếu hóa đơn cũ có món thì chuyển
+    if (hdCu.getMonAn() != null && !hdCu.getMonAn().isEmpty()) {
         for (ChiTietMonDTO mon : hdCu.getMonAn()) {
             ChiTietHoaDonId id = new ChiTietHoaDonId(hdMoi.getMaHd(), mon.getMaMon());
             ChiTietHoaDon ct = chiTietRepo.findById(id).orElse(new ChiTietHoaDon());
 
-            SanPham sp = sanPhamRepo.findById(mon.getMaMon()).orElseThrow();
+            SanPham sp = sanPhamRepo.findById(mon.getMaMon())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
             ct.setHoaDon(hdMoi);
             ct.setSanPham(sp);
@@ -316,6 +327,7 @@ public class HoaDonService {
             chiTietRepo.save(ct);
         }
 
+        // 4. Xóa chi tiết món trong hóa đơn cũ
         for (ChiTietMonDTO mon : hdCu.getMonAn()) {
             CapNhatSoLuongDTO capNhat = new CapNhatSoLuongDTO();
             capNhat.setMaHd(maHdCu);
@@ -323,16 +335,23 @@ public class HoaDonService {
             capNhat.setSoLuongMoi(0);
             capNhatSoLuong(capNhat);
         }
+    }
 
-        List<BanHoaDon> bans = banHoaDonRepo.findByHoaDon_MaHd(maHdCu);
-        for (BanHoaDon bhd : bans) {
-            Ban b = bhd.getBan();
-            b.setTrangThai("Trống");
-            banRepo.save(b);
-        }
+    // 5. Gỡ bàn cũ ra khỏi hóa đơn cũ
+    banHoaDonRepo.deleteByHoaDonAndBan(maHdCu, maBanCu);
 
-        banHoaDonRepo.deleteAll(bans);
+    // 6. Cập nhật trạng thái bàn cũ → Trống
+    Ban banCu = banRepo.findById(maBanCu)
+        .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn cũ"));
+    banCu.setTrangThai("Trống");
+    banRepo.save(banCu);
+
+    // 7. Kiểm tra xem hóa đơn cũ còn bàn nào không
+    List<BanHoaDon> remaining = banHoaDonRepo.findByHoaDon_MaHd(maHdCu);
+    if (remaining.isEmpty()) {
         hoaDonRepo.deleteById(maHdCu);
     }
+}
+
 
 }

@@ -354,6 +354,8 @@ void close(){
 
                 JOptionPane.showMessageDialog(this, "Đã xóa món khỏi hóa đơn.");
                 dispose(); // Đóng form
+                 FormBan banForm = new FormBan();
+                banForm.setVisible(true);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Lỗi khi xóa: " + e.getMessage());
                 e.printStackTrace();

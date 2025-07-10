@@ -112,12 +112,6 @@ public class Chuyenban extends javax.swing.JFrame {
 private void clearFormSauChuyenBan() {
     // Xóa bảng chi tiết bàn gốc
     ((DefaultTableModel) tblchitetban.getModel()).setRowCount(0);
-    
-    
-    // Xóa ComboBox bàn trống
-    cboban.removeAllItems();
-    
-    
     // Xóa các textfield thông tin
     txtMaMon.setText("");
     txttk3.setText("");
@@ -610,6 +604,7 @@ private void clearFormSauChuyenBan() {
             loadBanHoaDon();  // reload bảng hóa đơn
             loadBanTrong();   // reload combo box
             clearFormSauChuyenBan();
+            Thread.sleep(500);
             loadChiTietBanChuyen(maBanMoi);
         } catch (Exception ex) {
             ex.printStackTrace();
