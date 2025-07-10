@@ -27,5 +27,9 @@ public interface ChiTietHoaDonRepository extends JpaRepository<ChiTietHoaDon, Ch
         WHERE c.hoaDon.maHd = :maHd
     """)
     BigDecimal tinhTongTien(@Param("maHd") String maHd);
+    
+    
+    
+    
 }
 

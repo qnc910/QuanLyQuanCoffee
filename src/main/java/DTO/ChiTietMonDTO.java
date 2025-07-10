@@ -19,6 +19,19 @@ public class ChiTietMonDTO {
     private BigDecimal giaLucBan;
     private BigDecimal thanhTien;
 
+    public ChiTietMonDTO() {
+    }
+    
+    public ChiTietMonDTO(String maMon, String tenMon, Integer soLuong, BigDecimal giaLucBan, BigDecimal thanhTien) {
+    this.maMon = maMon;
+    this.tenMon = tenMon;
+    this.soLuong = soLuong;
+    this.giaLucBan = giaLucBan;
+    this.thanhTien = thanhTien;
+}
+
+
+
     public String getMaMon() {
         return maMon;
     }
