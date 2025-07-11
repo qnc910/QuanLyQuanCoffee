@@ -1,59 +1,43 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlyquancoffee.Models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
-/**
- *
- * @author ADMIN
- */
 @Entity
 @Table(name = "san_pham") 
 public class SanPham {
-    
+
     @Id
     @Column(name = "ma_mon", length = 10)
-    private String maMon ;
-    
-    @Column(name = "ten_mon", length = 10)
+    private String maMon;
+
+    @Column(name = "ten_mon", length = 100)
     private String tenMon;
-    
+
     @Column(name = "gia")
     private long gia;
-    
+
     @ManyToOne
     @JoinColumn(name = "ma_loai")
-    private LoaiMon maLoai = new LoaiMon();
-    
+    private LoaiMon loaiMon;
+
     @Column(name = "hinh_anh", length = 255)
     private String hinhAnh;
-    
-    
+
+    @Column(name = "da_xoa")
+    private boolean daXoa = false;
 
     public SanPham() {
     }
 
-    public SanPham(String maMon, String tenMon, long gia, String maLoai, String hinhAnh) {
+    public SanPham(String maMon, String tenMon, long gia, LoaiMon loaiMon, String hinhAnh) {
         this.maMon = maMon;
         this.tenMon = tenMon;
         this.gia = gia;
-        this.maLoai= new LoaiMon();
-        this.maLoai.setMaLoai(maLoai);
+        this.loaiMon = loaiMon;
         this.hinhAnh = hinhAnh;
+        this.daXoa = false;
     }
 
-    public String getTenLoai(){
-        return maLoai != null ? maLoai.getTenLoai() : "";
-    }
-    
     public String getMaMon() {
         return maMon;
     }
@@ -61,7 +45,6 @@ public class SanPham {
     public void setMaMon(String maMon) {
         this.maMon = maMon;
     }
-   
 
     public String getTenMon() {
         return tenMon;
@@ -79,12 +62,12 @@ public class SanPham {
         this.gia = gia;
     }
 
-    public String getMaLoai() {
-        return maLoai.getMaLoai();
+    public LoaiMon getLoaiMon() {
+        return loaiMon;
     }
 
-    public void setMaLoai(LoaiMon maLoai) {
-        this.maLoai = maLoai;
+    public void setLoaiMon(LoaiMon loaiMon) {
+        this.loaiMon = loaiMon;
     }
 
     public String getHinhAnh() {
@@ -94,6 +77,20 @@ public class SanPham {
     public void setHinhAnh(String hinhAnh) {
         this.hinhAnh = hinhAnh;
     }
-    
-    
+
+    public boolean isDaXoa() {
+        return daXoa;
+    }
+
+    public void setDaXoa(boolean daXoa) {
+        this.daXoa = daXoa;
+    }
+
+    public String getTenLoai() {
+        return loaiMon != null ? loaiMon.getTenLoai() : "";
+    }
+
+    public String getMaLoai() {
+        return loaiMon != null ? loaiMon.getMaLoai() : "";
+    }
 }

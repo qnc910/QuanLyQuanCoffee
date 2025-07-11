@@ -26,6 +26,18 @@ public class Ban {
     
     @Column(name = "trang_thai", length = 20)
     private String trangThai;
+    
+    @Column(name = "da_xoa")
+    private Boolean daXoa = false;
+
+    public Boolean getDaXoa() {
+        return daXoa;
+    }
+
+    public void setDaXoa(Boolean daXoa) {
+        this.daXoa = daXoa;
+    }
+
 
     public Ban() {
     }
@@ -36,6 +48,10 @@ public class Ban {
         this.khuvuc = new KhuVuc();
         this.khuvuc.setMaKV(maKV);
         this.trangThai = trangThai;
+    }
+
+    public KhuVuc getKhuvuc() {
+        return khuvuc;
     }
     
     public String getTenKV(){

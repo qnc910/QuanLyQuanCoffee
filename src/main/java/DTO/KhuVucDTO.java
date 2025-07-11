@@ -3,6 +3,7 @@ package DTO;
 public class KhuVucDTO {
     private String maKV;
     private String tenKV;
+        private Boolean daXoa;
 
     public KhuVucDTO() {
     }
@@ -31,5 +32,13 @@ public class KhuVucDTO {
     @Override
     public String toString() {
         return maKV + " - " + tenKV;
+    }
+    
+        public Boolean getDaXoa() {
+        return daXoa;
+    }
+
+    public void setDaXoa(Boolean daXoa) {
+        this.daXoa = daXoa;
     }
 }

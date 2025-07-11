@@ -33,6 +33,18 @@ public class NhanVien {
 
     @Column(name = "vi_tri", length = 50)
     private String viTri;
+    
+  @Column(name = "da_nghi")
+    private Boolean daNghi = false;
+
+    public Boolean getDaNghi() {
+        return daNghi;
+    }
+
+    public void setDaNghi(Boolean daNghi) {
+        this.daNghi = daNghi;
+    }
+
 
     // Quan hệ 1-1 với TaiKhoan, mappedBy phải đúng với tên field ở TaiKhoan
     @OneToOne(mappedBy = "nhanVien", cascade = CascadeType.ALL)

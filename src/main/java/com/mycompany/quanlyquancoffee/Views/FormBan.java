@@ -852,6 +852,10 @@ private boolean vuaDatBan = false;
         mapMaBanTenBan.clear();
         List<KhuVucDTO> dsKhuVuc = ApiBan.layDanhSachKhuVuc();
         for (KhuVucDTO kv : dsKhuVuc) {
+        /*      if (!"Trống".equalsIgnoreCase(ban.getTrangThai())) {
+        continue; // ❌ bỏ qua bàn không trống
+    }*/
+
             JPanel panelKhuVuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
             List<BanDTO> dsBan = ApiBan.layDanhSachBanTheoKhuVuc(kv.getMaKV());
@@ -962,6 +966,87 @@ private boolean vuaDatBan = false;
                 }
 }
 
+   /*private void timVaHienThiBan(String maBan) {
+    if (maBan == null || maBan.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Vui lòng nhập mã bàn cần tìm.");
+        return;
+    }
+
+    // Gọi API để tìm bàn
+    List<BanDTO> dsBan = ApiBan.timBan(maBan.trim());
+
+    if (dsBan.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Không tìm thấy bàn với mã: " + maBan);
+        return;
+    }
+
+    BanDTO ban = dsBan.get(0);
+
+    // Gán thông tin bàn vào giao diện
+    txtmaban.setText(ban.getMaBan());
+    txtban.setText(ban.getTenBan());
+
+    // Tô sáng nút bàn và chuyển đến tab khu vực
+    highlightButtonForBan(ban.getTenBan());
+
+    // Nếu bàn đã được đặt, hiển thị hóa đơn
+    if (!"Trống".equalsIgnoreCase(ban.getTrangThai())) {
+        try {
+            HoaDonChiTietDTO hd = ApiHoaDon.layHoaDonHomNayTheoBan(ban.getMaBan());
+
+            txtmahoadon.setText(hd.getMaHd());
+            txtNgay.setText(hd.getNgayLap());
+            txtgio.setText(hd.getGio());
+
+            DefaultTableModel model = new DefaultTableModel(new String[]{
+                "Mã HDCT", "Mã Món", "Tên Món", "Giá", "Số lượng", "Thành tiền"
+            }, 0);
+
+            for (ChiTietMonDTO mon : hd.getMonAn()) {
+                BigDecimal thanhTien = mon.getGiaLucBan().multiply(BigDecimal.valueOf(mon.getSoLuong()));
+                model.addRow(new Object[]{
+                    hd.getMaHd(), mon.getMaMon(), mon.getTenMon(),
+                    mon.getGiaLucBan(), mon.getSoLuong(), thanhTien
+                });
+            }
+
+            tblchitietban.setModel(model);
+
+            DecimalFormat df = new DecimalFormat("#,###");
+            lbltongtien.setText(df.format(hd.getTongTien()) + " đ");
+            btnorder.setEnabled(true);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Không có hóa đơn hôm nay cho bàn này.");
+            clearHoaDonUI();
+            btnorder.setEnabled(true);
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Bàn đang trống, chưa có hóa đơn.");
+        clearHoaDonUI();
+        btnorder.setEnabled(false);
+    }
+   
+}
+
+
+   private void highlightButtonForBan(String tenBan) {
+    for (int i = 0; i < tab.getTabCount(); i++) {
+        Component comp = ((JScrollPane) tab.getComponentAt(i)).getViewport().getView();
+
+        if (comp instanceof JPanel panelKhuVuc) {
+            for (Component c : panelKhuVuc.getComponents()) {
+                if (c instanceof JButton btn && btn.getText().equalsIgnoreCase(tenBan)) {
+                    tab.setSelectedIndex(i);
+                    btn.setBorder(BorderFactory.createLineBorder(Color.RED, 2)); // ✅ chỉ tô viền
+                    btn.requestFocus();
+                    btn.scrollRectToVisible(btn.getBounds());2
+                    return;
+                }
+            }
+        }
+    }
+}
+   */
 
 // ✅ Hàm tiện ích để reset UI khi không có hóa đơn
 private void clearHoaDonUI() {
@@ -1249,8 +1334,7 @@ private void clearHoaDonUI() {
         JOptionPane.showMessageDialog(this, "Đã thanh toán thành công!");
 
         // 3. Hỏi người dùng có muốn in hóa đơn không?
-        int chon = JOptionPane.showConfirmDialog(this, "Bạn có muốn in hóa đơn không?", "In hóa đơn", JOptionPane.YES_NO_OPTION);
-        if (chon == JOptionPane.YES_OPTION) {
+       
 
             // Mở file chooser
             JFileChooser chooser = new JFileChooser();
@@ -1267,7 +1351,7 @@ private void clearHoaDonUI() {
 
                 JOptionPane.showMessageDialog(this, "Đã in hóa đơn vào:\n" + fileToSave.getAbsolutePath());
             }
-        }
+        
 
         // Cập nhật lại giao diện bàn (nếu có)
         loadban();

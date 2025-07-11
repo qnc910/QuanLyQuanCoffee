@@ -81,7 +81,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     private void LoadDanhMuc(){
         try {
             Connection con = Connect.ConnectDB.KetnoiDB();
-            String sql = "Select * From loai_mon";
+            String sql = "Select * From loai_mon where da_xoa = 0";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             cbo_DanhMuc.addItem("---Chọn loại món---");
@@ -698,38 +698,46 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel1MouseClicked
 
+    private String currentImagePath = ""; // Biến toàn cục để lưu đường dẫn ảnh
+private String currentImageName = ""; // tên ảnh (ví dụ: ca_phe.jpg)
+
+    private void setImageToLabel(String imagePath) {
+        currentImagePath = imagePath;
+        ImageIcon icon = new ImageIcon(imagePath);
+        Image img = icon.getImage().getScaledInstance(lblHinh.getWidth(), lblHinh.getHeight(), Image.SCALE_SMOOTH);
+        lblHinh.setIcon(new ImageIcon(img));
+    }
+
+    //Duong dan anh C:\NetBeansProjects\QuanLyQuanCoffee\src\main\resources\Pictures\sanpham
     private void btn_ChonHinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ChonHinhActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Chọn hình ảnh");
         fileChooser.setFileFilter(new FileNameExtensionFilter("Hình ảnh", "jpg", "jpeg", "png"));
-
+        
         int result = fileChooser.showOpenDialog(this);
         if(result == JFileChooser.APPROVE_OPTION){
             File selectedFile = fileChooser.getSelectedFile();
             String imagePath = selectedFile.getAbsolutePath();
+            
+            currentImagePath = selectedFile.getAbsolutePath();
 
             ImageIcon icon = new ImageIcon(imagePath);
             Image scaledImage = icon.getImage().getScaledInstance(lblHinh.getWidth(), lblHinh.getHeight(), Image.SCALE_SMOOTH);
             lblHinh.setIcon(new ImageIcon(scaledImage));
         }
     }//GEN-LAST:event_btn_ChonHinhActionPerformed
-
+//Duong dan anh C:\NetBeansProjects\QuanLyQuanCoffee\src\main\resources\Pictures\sanpham
     private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
         // TODO add your handling code here:
         String maMon = txt_MaMon.getText().trim();
         String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
         String tenMon = txt_TenMon.getText().trim();
         String giaText = txt_DonGia.getText().trim();
-        String hinhanh = lblHinh.getText().trim();
-
+       String hinhanh = currentImageName;
         if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
 
-        if(CheckTrungMa(maMon)){
-            JOptionPane.showMessageDialog(this, "Mã món đã tồn tại!");
-            return;
-        }
-
+       
         long donGia = 0;
         try {
             donGia = Long.parseLong(giaText);
@@ -776,8 +784,15 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         String maLoai = danhMucMap.get(cbo_DanhMuc.getSelectedItem().toString().trim());
         String tenMon = txt_TenMon.getText().trim();
         String giaText = txt_DonGia.getText().trim();
-        String hinhanh = lblHinh.getText().trim();
-        
+       // Lấy đường dẫn đầy đủ từ biến currentImagePath
+        File fileAnh = new File(currentImagePath);
+
+        // Lấy tên file (ví dụ: "st_bo.jpg")
+        String tenFileAnh = fileAnh.getName();
+
+        // Lưu tên file vào biến hinhanh
+        String hinhanh = tenFileAnh;
+
         if(IsEmpty(maMon, tenMon, giaText, maLoai)) return;
 
         if(!CheckTrungMa(maMon)){
@@ -802,30 +817,36 @@ public class SanPhamJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_ThemActionPerformed
 
     private void tbl_MonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_MonMouseClicked
-        // TODO add your handling code here:
+
         int i = tbl_Mon.getSelectedRow();
         DefaultTableModel tb = (DefaultTableModel) tbl_Mon.getModel();
+
         txt_MaMon.setText(tb.getValueAt(i, 0).toString());
         txt_TenMon.setText(tb.getValueAt(i, 1).toString());
         txt_DonGia.setText(tb.getValueAt(i, 2).toString());
         cbo_DanhMuc.setSelectedItem(tb.getValueAt(i, 3).toString());
-       String tenFileAnh = tb.getValueAt(i, 4).toString();
-        // Đường dẫn trong resource (đặt trong src/main/resources/Pictures/sanpham/)
-           java.net.URL imgURL = getClass().getResource("/Pictures/sanpham/" + tenFileAnh);
-           if (imgURL != null) {
-               ImageIcon icon = new ImageIcon(imgURL);
-               Image scaledImage = icon.getImage().getScaledInstance(
-                       lblHinh.getWidth(), 
-                       lblHinh.getHeight(), 
-                       Image.SCALE_SMOOTH
-               );
-               lblHinh.setIcon(new ImageIcon(scaledImage));
-           } else {
-               System.err.println("Ảnh không tìm thấy trong resources/Pictures/sanpham/" + tenFileAnh);
-               lblHinh.setIcon(null);
-           }
-        
+
+        String tenFileAnh = tb.getValueAt(i, 4).toString();
+        currentImageName = tenFileAnh; // ✅ Ghi nhớ tên ảnh
+
+        // Load ảnh từ resources
+        java.net.URL imgURL = getClass().getResource("/Pictures/sanpham/" + tenFileAnh);
+        if (imgURL != null) {
+            ImageIcon icon = new ImageIcon(imgURL);
+            Image scaledImage = icon.getImage().getScaledInstance(
+                lblHinh.getWidth(), lblHinh.getHeight(), Image.SCALE_SMOOTH
+            );
+            lblHinh.setIcon(new ImageIcon(scaledImage));
+            currentImagePath = imgURL.getPath(); // dùng cho chọn file ngoài
+        } else {
+            System.err.println("Không tìm thấy ảnh: " + tenFileAnh);
+            lblHinh.setIcon(null);
+            currentImagePath = "";
+        }
+
         txt_MaMon.setEnabled(false);
+
+
     }//GEN-LAST:event_tbl_MonMouseClicked
 
     private void btn_XoaLMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XoaLMActionPerformed
@@ -842,6 +863,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         if (ApiLoaiMon.xoaLoaiMon(maLoai)) {
             JOptionPane.showMessageDialog(null, "Xóa thành công!");
             LoadDanhSachMon();
+            LoadDanhMuc();
         }else{
             JOptionPane.showMessageDialog(null, "Xóa thất bại!");
         }
@@ -851,7 +873,7 @@ public class SanPhamJFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         String maLM = txtMaLM.getText().trim();
         String tenLm = txtTenLoaiMon.getText().trim();
-
+        
         if(CheckEmpty(maLM, tenLm)) return;
 
         LoaiMonDTO lm = new LoaiMonDTO(maLM, tenLm);

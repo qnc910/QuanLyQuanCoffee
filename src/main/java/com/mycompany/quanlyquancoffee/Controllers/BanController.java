@@ -8,6 +8,7 @@ import DTO.BanDTO;
 import com.mycompany.quanlyquancoffee.Models.Ban;
 import com.mycompany.quanlyquancoffee.Models.HoaDon;
 import com.mycompany.quanlyquancoffee.Models.KhuVuc;
+import com.mycompany.quanlyquancoffee.Services.BanService;
 import com.mycompany.quanlyquancoffee.repository.BanRepository;
 import com.mycompany.quanlyquancoffee.repository.HoaDonRepository;
 import com.mycompany.quanlyquancoffee.repository.KhuVucRepository;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +43,7 @@ public class BanController {
     
     @GetMapping("/getall")
     public List<BanDTO> getAll(){
-        List<Ban> ds = banRepository.findAll();
+        List<Ban> ds = banRepository.findByDaXoaFalse(); 
         List<BanDTO> dsban = new ArrayList<>(); 
         
         for(Ban ban : ds){
@@ -94,17 +96,26 @@ public class BanController {
         return ResponseEntity.ok("Đã cập nhật bàn");
     }
     
+    @Autowired
+    private BanService banService;
+
     @DeleteMapping("/delete/{maBan}")
-    public ResponseEntity<?> delete(@PathVariable String maBan){
-        if(!banRepository.existsById(maBan)){
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<String> deleteBan(@PathVariable String maBan) {
+        try {
+            banService.xoaBan(maBan);
+            return ResponseEntity.ok("✅ Đã xoá mềm bàn: " + maBan);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("⚠️ " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("❌ Lỗi khi xoá bàn: " + e.getMessage());
         }
-        banRepository.deleteById(maBan);
-        return ResponseEntity.ok("Đã xoá bàn");
     }
+
+    
     @GetMapping("/bykhuvuc/{maKV}")
     public List<BanDTO> getBanByKhuVuc(@PathVariable String maKV) {
-        List<Ban> ds = banRepository.findByKhuvuc_MaKV(maKV);
+        List<Ban> ds = banRepository.findByKhuvuc_MaKVAndDaXoaFalse(maKV); // chỉ bàn chưa xoá
         List<BanDTO> dsban = new ArrayList<>();
 
         for (Ban ban : ds) {
@@ -119,6 +130,7 @@ public class BanController {
 
         return dsban;
     }
+
     
     @PutMapping("/tra-ban/{maBan}")
     public ResponseEntity<?> traBan(@PathVariable String maBan) {

@@ -22,6 +22,7 @@ public interface BanHoaDonRepository extends JpaRepository<BanHoaDon, BanHoaDonI
 
     // Tìm theo mã hóa đơn
     List<BanHoaDon> findByHoaDon_MaHd(String maHd);
+    List<BanHoaDon> findByBan_MaBan(String maBan);
 
     // Tìm hóa đơn đang chiếm dụng bàn
     @Query("SELECT bhd FROM BanHoaDon bhd WHERE bhd.ban.maBan = :maBan AND bhd.hoaDon.trangThai = 'Chua thanh toan'")

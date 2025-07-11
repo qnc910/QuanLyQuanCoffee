@@ -12,7 +12,16 @@ package DTO;
 public class LoaiMonDTO {
     private String maLoai;
     private String tenLoai;
+    private Boolean daXoa;
 
+    public Boolean getDaXoa() {
+        return daXoa;
+    }
+
+    public void setDaXoa(Boolean daXoa) {
+        this.daXoa = daXoa;
+    }
+       
     public LoaiMonDTO() {
     }
 

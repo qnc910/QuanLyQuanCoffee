@@ -42,23 +42,25 @@ public class SanPhamController {
     @DeleteMapping – Xóa
     */
     
+
     @GetMapping("/getall")
-    public List<SanPhamDTO> getAll(){
-        List<SanPham> ds = sanPhamRepository.findAll();
+    public List<SanPhamDTO> getAll() {
+        List<SanPham> ds = sanPhamRepository.findByDaXoaFalse();
         List<SanPhamDTO> dssp = new ArrayList<>();
-        
-        for(SanPham sp : ds){
+
+        for (SanPham sp : ds) {
             SanPhamDTO dto = new SanPhamDTO();
             dto.setMaMon(sp.getMaMon());
             dto.setTenMon(sp.getTenMon());
             dto.setGia(sp.getGia());
             dto.setHinhAnh(sp.getHinhAnh());
             dto.setTenLoai(sp.getMaMon() != null ? sp.getTenLoai() : "Không rõ");
-            
             dssp.add(dto);
         }
+
         return dssp;
     }
+
     
     @GetMapping("/find/{maMon}")
     public Optional<SanPham> findMon(@PathVariable String maMon){
@@ -75,7 +77,7 @@ public class SanPhamController {
         sp.setTenMon(dto.getTenMon());
         sp.setGia(dto.getGia());
         sp.setHinhAnh(dto.getHinhAnh());
-        sp.setMaLoai(loaiMonOpt.get());
+        sp.setLoaiMon(loaiMonOpt.get());
 
         sanPhamRepository.save(sp);
         return ResponseEntity.ok("Đã thêm sản phẩm");
@@ -93,20 +95,25 @@ public class SanPhamController {
         sp.setTenMon(dto.getTenMon());
         sp.setGia(dto.getGia());
         sp.setHinhAnh(dto.getHinhAnh());
-        sp.setMaLoai(loaiMonOpt.get());
+       sp.setLoaiMon(loaiMonOpt.get());
         
         sanPhamRepository.save(sp);
         return ResponseEntity.ok("Đã cập nhật sản phẩm");
     }
     
     @DeleteMapping("/delete/{maMon}")
-    public ResponseEntity<?> delete(@PathVariable String maMon){
-        if(!sanPhamRepository.existsById(maMon)){
-            return ResponseEntity.notFound().build();
+        public ResponseEntity<?> delete(@PathVariable String maMon) {
+            Optional<SanPham> spOpt = sanPhamRepository.findById(maMon);
+            if (spOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            SanPham sp = spOpt.get();
+            sp.setDaXoa(true);
+            sanPhamRepository.save(sp);
+            return ResponseEntity.ok("Đã xoá (mềm) sản phẩm");
         }
-        sanPhamRepository.deleteById(maMon);
-        return ResponseEntity.ok("Đã xoá sản phẩm");
-    }
+
     
     @GetMapping("/search")
     public ResponseEntity<?> searchSanPham(@RequestParam("keyword") String keyword) {

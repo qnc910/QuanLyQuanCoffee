@@ -21,7 +21,7 @@ public class PdfExporter {
 
         // Thông tin hóa đơn
         document.add(new Paragraph("Mã hóa đơn: " + hd.getMaHd()));
-        document.add(new Paragraph("Ngày: " + hd.getNgayLap() + "     Giờ: " + hd.getGio()));
+         document.add(new Paragraph("Ngày: " + hd.getNgayLap() + "     Giờ: " + hd.getGio()));
         document.add(new Paragraph("Trạng thái: " + hd.getTrangThai() + "\n\n"));
 
         // Bảng món ăn

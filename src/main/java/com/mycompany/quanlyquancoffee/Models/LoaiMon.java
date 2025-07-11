@@ -1,32 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlyquancoffee.Models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
-/**
- *
- * @author ADMIN
- */
-
 @Entity
-@Table(name = "loai_mon") 
+@Table(name = "loai_mon")
 public class LoaiMon {
-    @Id 
+
+    @Id
     @Column(name = "ma_loai", length = 10)
     private String maLoai;
-    
+
     @Column(name = "ten_loai", length = 100)
     private String tenLoai;
-    
+
+    @Column(name = "da_xoa")
+    private boolean daXoa = false;
+
     @JsonIgnore
-    @OneToMany(mappedBy = "maLoai", cascade = CascadeType.ALL) 
+    @OneToMany(mappedBy = "loaiMon", cascade = CascadeType.ALL)
     private List<SanPham> danhsachSP;
-    
+
     public LoaiMon() {
     }
 
@@ -50,7 +45,23 @@ public class LoaiMon {
     public void setTenLoai(String tenLoai) {
         this.tenLoai = tenLoai;
     }
-    
+
+    public boolean isDaXoa() {
+        return daXoa;
+    }
+
+    public void setDaXoa(boolean daXoa) {
+        this.daXoa = daXoa;
+    }
+
+    public List<SanPham> getDanhsachSP() {
+        return danhsachSP;
+    }
+
+    public void setDanhsachSP(List<SanPham> danhsachSP) {
+        this.danhsachSP = danhsachSP;
+    }
+
     @Override
     public String toString() {
         return maLoai + " - " + tenLoai;

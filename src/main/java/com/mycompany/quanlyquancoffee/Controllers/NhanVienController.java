@@ -4,6 +4,7 @@ import com.mycompany.quanlyquancoffee.Models.NhanVien;
 import com.mycompany.quanlyquancoffee.Models.TaiKhoan;
 import DTO.NhanVienTaiKhoanDTO;
 import DTO.TaiKhoanDTO;
+import com.mycompany.quanlyquancoffee.Services.NhanVienService;
 import com.mycompany.quanlyquancoffee.repository.NhanVienRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,15 +106,17 @@ public class NhanVienController {
         return ResponseEntity.ok("Cập nhật nhân viên thành công.");
     }
 
-    // ✅ Xoá nhân viên
-    @DeleteMapping("/{maNV}")
-    @Transactional
-    public ResponseEntity<?> deleteNhanVien(@PathVariable String maNV) {
-        if (!nhanVienRepo.existsById(maNV)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy nhân viên.");
-        }
+     @Autowired
+    private NhanVienService nhanVienService;
 
-        nhanVienRepo.deleteById(maNV);
-        return ResponseEntity.ok("Xoá thành công.");
+    @DeleteMapping("/{maNv}")
+    public ResponseEntity<String> xoaNhanVien(@PathVariable String maNv) {
+        try {
+            nhanVienService.xoaNhanVien(maNv);
+            return ResponseEntity.ok("Đã xóa nhân viên " + maNv);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Lỗi: " + e.getMessage());
+        }
     }
 }

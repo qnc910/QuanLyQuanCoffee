@@ -26,9 +26,9 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @RestController
-@RequestMapping("/api/hoadon")
+@RequestMapping("/api/thongke")
 @CrossOrigin(origins = "*")
-public class HoaDonController {
+public class ThongKeController {
     
     @Autowired
     private HoaDonRepository hoaDonRepository;
