@@ -17,7 +17,7 @@ public class ConnectDB {
         Connection con = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://localhost:3306/QuanLyQuanCaPhe?zeroDateTimeBehavior=CONVERT_TO_NULL";
+            String url = "jdbc:mysql://localhost:3306/QuanLyCaPhe?zeroDateTimeBehavior=CONVERT_TO_NULL";
             String user = "root";
             String pass = "";
             con = DriverManager.getConnection(url, user, pass);
